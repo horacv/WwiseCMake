@@ -1,0 +1,12 @@
+﻿.idea
+/build
+*cmake_install.cmake
+*Makefile
+*CMakeFiles
+*.cmake
+
+libs/wwise/**
+!libs/wwise/
+!libs/wwise/**/
+!libs/wwise/**/CMakeLists.txt
+!libs/wwise/**/readme.md
