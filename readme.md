@@ -3,6 +3,8 @@
 
 A CMake template project that demonstrates integration of Audiokinetic's Wwise audio engine with any software project.
 
+![screenshot.png](images/screenshot.png)
+
 ## Overview
 
 This project showcases a basic integration between Wwise and SDL, featuring:
