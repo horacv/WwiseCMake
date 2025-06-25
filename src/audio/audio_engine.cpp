@@ -22,11 +22,6 @@ AudioEngine::AudioEngine()
     , mMusicSettings()
 {}
 
-uint64_t AudioEngine::GetNewAudioObjectID()
-{
-    return nextAudioObjectID++;
-}
-
 AudioEngine& AudioEngine::Get()
 {
 	if (!sInstance)
@@ -37,6 +32,11 @@ AudioEngine& AudioEngine::Get()
 }
 
 bool AudioEngine::Initialize()
+{
+    return Get().Initialize_Internal();
+}
+
+bool AudioEngine::Initialize_Internal()
 {
 	if (IsInitialized()) { return true; }
 
@@ -126,7 +126,7 @@ void AudioEngine::Terminate()
 
     AK::MusicEngine::Term();
     AK::SoundEngine::Term();
-    mLowLevelIO.Term();
+    Get().mLowLevelIO.Term();
 
     if (auto* pStrMngr = AK::IAkStreamMgr::Get())
     {
@@ -149,6 +149,19 @@ bool AudioEngine::IsInitialized()
     return AK::SoundEngine::IsInitialized();
 }
 
+bool AudioEngine::LoadSoundBank(const std::string& bank, const AudioBankType type)
+{
+    if (!IsInitialized()) { return false; }
+    AkBankID bankID;
+    return AK::SoundEngine::LoadBank(bank.c_str(), bankID, type) == AK_Success;
+}
+
+bool AudioEngine::UnloadSoundBank(const std::string& bank, const AudioBankType type)
+{
+    if (!IsInitialized()) { return false; }
+    return AK::SoundEngine::UnloadBank(bank.c_str(), nullptr, type);
+}
+
 void AudioEngine::SetDefaultListener(const uint64_t audioObjectID)
 {
     if (!IsInitialized()) { return; }
@@ -157,25 +170,70 @@ void AudioEngine::SetDefaultListener(const uint64_t audioObjectID)
     AK::SoundEngine::SetDefaultListeners(&audioObjectID, numListeners);
 }
 
-bool AudioEngine::LoadSoundBank(const std::string& bank)
+uint64_t AudioEngine::GetNewAudioObjectID()
 {
-    if (!IsInitialized()) { return false; }
-    AkBankID bankID;
-    return AK::SoundEngine::LoadBank(bank.c_str(), bankID) == AK_Success;
+    return nextAudioObjectID++;
 }
 
 bool AudioEngine::RegisterAudioObject(const uint64_t audioObjectID, const std::string& name)
 {
+    if (!IsInitialized()) { return false; }
     return AK::SoundEngine::RegisterGameObj(audioObjectID, name.c_str()) == AK_Success;
+}
+
+bool AudioEngine::UnregisterAudioObject(const uint64_t audioObjectID)
+{
+    if (!IsInitialized()) { return false; }
+    return AK::SoundEngine::UnregisterGameObj(audioObjectID);
+}
+
+bool AudioEngine::UnregisterAllAudioObjects()
+{
+    if (!IsInitialized()) { return false; }
+    return AK::SoundEngine::UnregisterAllGameObj();
+}
+
+bool AudioEngine::AudioObjectSetPosition(const uint64_t audioObjectID, const AudioPosition& position)
+{
+    if (!IsInitialized()) { return false; }
+    return AK::SoundEngine::SetPosition(audioObjectID, position) == AK_Success;
 }
 
 uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const uint64_t audioObjectID)
 {
+    const AkGameObjectID ID = audioObjectID <= 0 || audioObjectID == AK_INVALID_GAME_OBJECT ? Get().defaultAudioObject : audioObjectID;
+    return PlayAudioEvent(eventName, AudioPosition(), ID);
+}
+
+uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const AudioPosition& position, const uint64_t audioObjectID)
+{
     if (!IsInitialized()) { return 0; }
-    return AK::SoundEngine::PostEvent(eventName.c_str(), audioObjectID <= 0 ? Get().defaultAudioObject : audioObjectID);
+    AK::SoundEngine::SetPosition(audioObjectID, position);
+    return AK::SoundEngine::PostEvent(eventName.c_str(), audioObjectID);
+}
+
+bool AudioEngine::SetState(const std::string& stateGroup, const std::string& stateValue)
+{
+    if (!IsInitialized()) { return false; }
+    return AK::SoundEngine::SetState(stateGroup.c_str(), stateValue.c_str());
+}
+
+void AudioEngine::SetSwitch(const std::string& switchGroup, const std::string& switchValue, const uint64_t audioObjectID)
+{
+    if (!IsInitialized()) { return; }
+    AK::SoundEngine::SetSwitch(switchGroup.c_str(), switchValue.c_str(), audioObjectID);
+}
+
+bool AudioEngine::SetParameter(const std::string& parameterName, const float value, const uint64_t audioObjectID,
+        const int valueChangeDuration, const AudioCurveInterpolation curveInterpolation, const bool bBypassInternalInterpolation)
+{
+    if (!IsInitialized()) { return false; }
+    return AK::SoundEngine::SetRTPCValue(parameterName.c_str(), value,
+        audioObjectID, valueChangeDuration, curveInterpolation, bBypassInternalInterpolation) == AK_Success;
 }
 
 void AudioEngine::SetInitSettings()
 {
-    mInitSettings.szPluginDLLPath = AKTEXT("plugins/wwise"); // Where to look for the dynamic library plugins
+    // Where to look for the dynamic library plugins
+    mInitSettings.szPluginDLLPath = AKTEXT("plugins/wwise");
 }

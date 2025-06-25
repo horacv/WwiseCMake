@@ -2,7 +2,6 @@
 
 #include "audio/audio_engine.h"
 #include <SDL3_ttf/SDL_ttf.h>
-#include <cassert>
 #include <iostream>
 
 Game::Game()
@@ -19,7 +18,7 @@ Game::Game()
 
 void Game::Initialize()
 {
-	AudioEngine::Get().Initialize(); // AUDIO ENGINE INIT
+	AudioEngine::Initialize(); // AUDIO ENGINE INIT
 
 	SDL_Init(SDL_INIT_VIDEO);
 	TTF_Init();
@@ -48,7 +47,7 @@ void Game::Terminate() const
 	SDL_DestroyWindow(mWindow);
 	SDL_Quit();
 
-	AudioEngine::Get().Terminate(); // AUDIO ENGINE TERM
+	AudioEngine::Terminate(); // AUDIO ENGINE TERM
 
 	std::cout << "Game destroyed" << std::endl;
 }
