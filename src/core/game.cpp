@@ -25,7 +25,7 @@ void Game::Initialize()
 
 	SDL_Init(SDL_INIT_VIDEO);
 	TTF_Init();
-	mWindow = SDL_CreateWindow("Wwise is Alive!",mWindowWidth,mWindowHeight,SDL_WINDOW_ALWAYS_ON_TOP);
+	mWindow = SDL_CreateWindow("Wwise is Alive!",mWindowWidth,mWindowHeight, 0);
 	mRenderer = SDL_CreateRenderer(mWindow, nullptr);
 	mIsRunning = mWindow && mRenderer;
 
@@ -144,11 +144,14 @@ void Game::Render() const
 
 void Game::GlobalAudioEventCallback(const AudioCallbackType type, AudioCallbackInfo* info)
 {
+	if (!info) { return; }
+
 	if (type == AK_MusicSyncBeat)
 	{
-		if (const auto game = static_cast<Game*>(info->pCookie))
+		const auto game = static_cast<Game*>(info->pCookie);
+		const auto* musicInfo = static_cast<AkMusicSyncCallbackInfo*>(info);
+		if (game && musicInfo)
 		{
-			const auto* musicInfo = static_cast<AkMusicSyncCallbackInfo*>(info);
 			const auto currentPositionMs = musicInfo->segmentInfo.iCurrentPosition + musicInfo->segmentInfo.iRemainingLookAheadTime;
 			const auto barDurationMs = musicInfo->segmentInfo.fBarDuration * 1000;
 			const auto rawBarPosition = static_cast<float>(currentPositionMs) / barDurationMs + 1;
