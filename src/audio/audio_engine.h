@@ -15,9 +15,13 @@
 #include <memory>
 #include <string>
 
-using AudioPosition = AkSoundPosition;
-using AudioCurveInterpolation = AkCurveInterpolation;
 using AudioBankType = AkBankType;
+using AudioCallbackInfo = AkCallbackInfo;
+using AudioCallbackType = AkCallbackType;
+using AudioCurveInterpolation = AkCurveInterpolation;
+using AudioEventCallback = AkCallbackFunc;
+using AudioPosition = AkSoundPosition;
+
 
 class AudioEngine
 {
@@ -51,10 +55,17 @@ class AudioEngine
 		// Events
 
 		static uint32_t PlayAudioEvent(const std::string& eventName,
-			uint64_t audioObjectID = AK_INVALID_GAME_OBJECT);
+			uint64_t audioObjectID = AK_INVALID_GAME_OBJECT,
+			AudioCallbackType callbackType = AK_CallbackBits,
+			AudioEventCallback callback = nullptr,
+			void* callbackCookie = nullptr);
+
 		static uint32_t PlayAudioEvent(const std::string& eventName,
 			const AudioPosition& position,
-			uint64_t audioObjectID);
+			uint64_t audioObjectID,
+			AudioCallbackType callbackType = AK_CallbackBits,
+			AudioEventCallback callback = nullptr,
+			void* callbackCookie = nullptr);
 
 		// Parameters
 

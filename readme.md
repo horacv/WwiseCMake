@@ -19,7 +19,7 @@ This project showcases a basic integration between Wwise and SDL, featuring:
 - CMake 3.x or higher
 - Wwise SDK 
 - SDL3 and SDL3_TTF development libraries (included)
-- C++17 compatible compiler
+- C++20 compatible compiler. C++17 is the minimum required for Wwise
 
 ## Building the Project
 

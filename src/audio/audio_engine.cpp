@@ -199,17 +199,23 @@ bool AudioEngine::AudioObjectSetPosition(const uint64_t audioObjectID, const Aud
     return AK::SoundEngine::SetPosition(audioObjectID, position) == AK_Success;
 }
 
-uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const uint64_t audioObjectID)
+uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const uint64_t audioObjectID,
+    const AudioCallbackType callbackType, const AudioEventCallback callback, void* callbackCookie)
 {
     const AkGameObjectID ID = audioObjectID <= 0 || audioObjectID == AK_INVALID_GAME_OBJECT ? Get().defaultAudioObject : audioObjectID;
-    return PlayAudioEvent(eventName, AudioPosition(), ID);
+
+    AudioPosition position;
+    position.Set({0,0,0},{1,0,0},{0,1,0});
+    return PlayAudioEvent(eventName, position, ID, callbackType, callback, callbackCookie);
 }
 
-uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const AudioPosition& position, const uint64_t audioObjectID)
+uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const AudioPosition& position,
+    const uint64_t audioObjectID, const AudioCallbackType callbackType,
+    const AudioEventCallback callback, void* callbackCookie)
 {
     if (!IsInitialized()) { return 0; }
     AK::SoundEngine::SetPosition(audioObjectID, position);
-    return AK::SoundEngine::PostEvent(eventName.c_str(), audioObjectID);
+    return AK::SoundEngine::PostEvent(eventName.c_str(), audioObjectID, callbackType, callback, callbackCookie);
 }
 
 bool AudioEngine::SetState(const std::string& stateGroup, const std::string& stateValue)
