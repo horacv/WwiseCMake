@@ -13,6 +13,7 @@ This project showcases a basic integration between Wwise and SDL, featuring:
 - Background music playback by posting an audio event on a soundbank
 - A basic audio engine class to interface between Wwise and the rest of the codebase
 - Detailed instructions on how to build and link all Wwise dependencies.
+- A .ini config file and a simple config parser to handle audio initialization
 
 ## Prerequisites
 
@@ -43,6 +44,7 @@ Note that some IDEs can configure and build your project without using the comma
 - `assets/` - Contains soundbanks and general assets
   - `fonts/` - arial.ttf
   - `soundbanks/` - Init.bnk, Music.bnk + wem files
+- `config/` - Contains a configuration file for the audio engine
 - `libs/` - Contains all "third-party" libraries for the project
   - `sdl/`
     - `include` - SDL header files
