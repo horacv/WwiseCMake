@@ -294,7 +294,12 @@ void AudioEngine::SetPlatformInitSettings(AkPlatformInitSettings& PlatformInitSe
     const std::string& category = "Platform";
 
     PlatformInitSettings.uSampleRate = config.GetInt(category, "uSampleRate");
+
+#if defined(AK_WIN)
     PlatformInitSettings.uMaxSystemAudioObjects = config.GetInt(category, "uMaxSystemAudioObjects");
+#elif  defined(AK_APPLE)
+    PlatformInitSettings.uNumSpatialAudioPointSources = config.GetInt(category, "uMaxSystemAudioObjects");
+#endif
 }
 
 void AudioEngine::SetSpatialAudioInitSettings(AkSpatialAudioInitSettings& SpatialAudioSettings, const AudioConfig& config)
