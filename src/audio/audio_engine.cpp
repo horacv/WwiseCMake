@@ -6,8 +6,20 @@
 #include <AK/Plugin/AkOpusDecoderFactory.h>
 /*******************************************/
 
+#include <AK/MusicEngine/Common/AkMusicEngine.h>
+#include <AK/SoundEngine/Common/AkMemoryMgrModule.h>
+#include <AK/SoundEngine/Common/AkSoundEngine.h>
+#include <AK/SoundEngine/Common/AkStreamMgrModule.h>
+#include <AK/SpatialAudio/Common/AkSpatialAudio.h>
+
+#ifndef AK_OPTIMIZED // The profiler module
+    #include <AK/Comm/AkCommunication.h>
+#endif
+
 #include <iostream>
 #include <cassert>
+
+#include "audio_config.h"
 
 std::unique_ptr<AudioEngine> AudioEngine::sInstance = nullptr;
 uint64_t AudioEngine::nextAudioObjectID = 0;
@@ -15,11 +27,6 @@ uint64_t AudioEngine::nextAudioObjectID = 0;
 AudioEngine::AudioEngine()
     : defaultAudioObject(0)
     , defaultAudioListener(0)
-    , mMemorySettings()
-    , mStreamingDeviceSettings()
-    , mInitSettings()
-    , mPlatformInitSettings()
-    , mMusicSettings()
 {}
 
 AudioEngine& AudioEngine::Get()
@@ -40,12 +47,17 @@ bool AudioEngine::Initialize_Internal()
 {
 	if (IsInitialized()) { return true; }
 
+    AudioConfig config;
+    if (!config.LoadConfigFile("config/audio_engine.ini")) { return false; }
+
+    AkMemSettings mMemorySettings{};
     AK::MemoryMgr::GetDefaultSettings(mMemorySettings);
     if (AK::MemoryMgr::Init(&mMemorySettings) != AK_Success)
     {
         assert(!"Could not initialize the memory manager.");
     }
 
+    AkStreamMgrSettings mStreamingSettings{};
     AK::StreamMgr::GetDefaultSettings(mStreamingSettings);
     if (!AK::StreamMgr::Create(mStreamingSettings))
     {
@@ -57,6 +69,7 @@ bool AudioEngine::Initialize_Internal()
         assert(!"Could not set language");
     }
 
+    AkDeviceSettings mStreamingDeviceSettings{};
     AK::StreamMgr::GetDefaultDeviceSettings(mStreamingDeviceSettings);
     if (mLowLevelIO.Init(mStreamingDeviceSettings) != AK_Success)
     {
@@ -68,26 +81,33 @@ bool AudioEngine::Initialize_Internal()
         assert(!"Failed setting the Soundbanks base path");
     }
 
+    AkInitSettings mInitSettings{};
+    AkPlatformInitSettings mPlatformInitSettings{};
     AK::SoundEngine::GetDefaultInitSettings(mInitSettings);
-    SetInitSettings();
+    SetAudioEngineInitSettings(mInitSettings, config);
     AK::SoundEngine::GetDefaultPlatformInitSettings(mPlatformInitSettings);
+    SetPlatformInitSettings(mPlatformInitSettings, config);
     if (AK::SoundEngine::Init(&mInitSettings, &mPlatformInitSettings) != AK_Success)
     {
         assert(!"Could not initialize the Sound Engine.");
     }
 
+    AkMusicSettings mMusicSettings{};
     AK::MusicEngine::GetDefaultInitSettings(mMusicSettings);
     if (AK::MusicEngine::Init(&mMusicSettings) != AK_Success)
     {
         assert(!"Could not initialize the Music Engine.");
     }
 
-    if (AK::SpatialAudio::Init(mSpatialAudioSettings) != AK_Success)
+    AkSpatialAudioInitSettings SpatialAudioSettings{};
+    SetSpatialAudioInitSettings(SpatialAudioSettings, config);
+    if (AK::SpatialAudio::Init(SpatialAudioSettings) != AK_Success)
     {
         assert(!"Could not initialize Spatial Audio." );
     }
 
 #ifndef AK_OPTIMIZED
+    AkCommSettings mCommunicationSettings{};
     AK::Comm::GetDefaultInitSettings(mCommunicationSettings);
     if (AK::Comm::Init(mCommunicationSettings) != AK_Success)
     {
@@ -238,8 +258,78 @@ bool AudioEngine::SetParameter(const std::string& parameterName, const float val
         audioObjectID, valueChangeDuration, curveInterpolation, bBypassInternalInterpolation) == AK_Success;
 }
 
-void AudioEngine::SetInitSettings()
+void AudioEngine::SetAudioEngineInitSettings(AkInitSettings& InitSettings, const AudioConfig& config)
 {
-    // Where to look for the dynamic library plugins
-    mInitSettings.szPluginDLLPath = AKTEXT("plugins/wwise");
+    const std::string& category = "AudioEngine";
+
+    // Decided to keep this hard-coded because it's a pain to deal with wchar_t.
+    InitSettings.szPluginDLLPath = AKTEXT("plugins/wwise");
+
+    InitSettings.uMaxNumPaths = config.GetInt(category, "uMaxNumPaths");
+    InitSettings.uNumSamplesPerFrame = config.GetInt(category, "uNumSamplesPerFrame");
+    InitSettings.uMonitorQueuePoolSize = config.GetInt(category, "uMonitorQueuePoolSize");
+    InitSettings.uCommandQueueSize = config.GetInt(category, "uCommandQueueSize");
+    InitSettings.fGameUnitsToMeters = config.GetFloat(category, "fGameUnitsToMeters");
+    InitSettings.bOfflineRendering = config.GetBool(category, "bOfflineRendering");
+
+    std::unordered_map<std::string, AkFloorPlane> floorPlaneValues{
+        {"ZX", AkFloorPlane_Default},
+        {"XY", AkFloorPlane_XY},
+        {"XZ", AkFloorPlane_XZ},
+        {"YZ", AkFloorPlane_YZ}
+    };
+
+    AkFloorPlane floorPlane = AkFloorPlane_Default;
+    const auto it = floorPlaneValues.find(config.GetString(category, "eFloorPlane"));
+    if (it != floorPlaneValues.end())
+    {
+        floorPlane = it->second;
+    }
+
+    InitSettings.eFloorPlane = floorPlane;
+}
+
+void AudioEngine::SetPlatformInitSettings(AkPlatformInitSettings& PlatformInitSettings, const AudioConfig& config)
+{
+    const std::string& category = "Platform";
+
+    PlatformInitSettings.uSampleRate = config.GetInt(category, "uSampleRate");
+    PlatformInitSettings.uMaxSystemAudioObjects = config.GetInt(category, "uMaxSystemAudioObjects");
+}
+
+void AudioEngine::SetSpatialAudioInitSettings(AkSpatialAudioInitSettings& SpatialAudioSettings, const AudioConfig& config)
+{
+    const std::string& category = "SpatialAudio";
+
+    SpatialAudioSettings.uMaxSoundPropagationDepth = config.GetInt(category, "uMaxSoundPropagationDepth");
+    SpatialAudioSettings.fMovementThreshold = config.GetFloat(category, "fMovementThreshold");
+    SpatialAudioSettings.uNumberOfPrimaryRays = config.GetInt(category, "uNumberOfPrimaryRays");
+    SpatialAudioSettings.uMaxReflectionOrder = config.GetInt(category, "uMaxReflectionOrder");
+    SpatialAudioSettings.uMaxDiffractionOrder = config.GetInt(category, "uMaxDiffractionOrder");
+    SpatialAudioSettings.uMaxDiffractionPaths = config.GetInt(category, "uMaxDiffractionPaths");
+    SpatialAudioSettings.uMaxGlobalReflectionPaths = config.GetInt(category, "uMaxGlobalReflectionPaths");
+    SpatialAudioSettings.uMaxEmitterRoomAuxSends = config.GetInt(category, "uMaxEmitterRoomAuxSends");
+    SpatialAudioSettings.uDiffractionOnReflectionsOrder = config.GetInt(category, "uDiffractionOnReflectionsOrder");
+    SpatialAudioSettings.fMaxDiffractionAngleDegrees = config.GetFloat(category, "fMaxDiffractionAngleDegrees");
+    SpatialAudioSettings.fMaxPathLength = config.GetFloat(category, "fMaxPathLength");
+    SpatialAudioSettings.fCPULimitPercentage = config.GetFloat(category, "fCPULimitPercentage");
+    SpatialAudioSettings.fSmoothingConstantMs = config.GetFloat(category, "fSmoothingConstantMs");
+    SpatialAudioSettings.uLoadBalancingSpread = config.GetInt(category, "uLoadBalancingSpread");
+    SpatialAudioSettings.bEnableGeometricDiffractionAndTransmission = config.GetBool(category, "bEnableGeometricDiffractionAndTransmission");
+    SpatialAudioSettings.bCalcEmitterVirtualPosition = config.GetBool(category, "bCalcEmitterVirtualPosition");
+
+    std::unordered_map<std::string, AkTransmissionOperation> transmissionOperationValues{
+        {"Max", AkTransmissionOperation_Max},
+        {"Add", AkTransmissionOperation_Add},
+        {"Multiply", AkTransmissionOperation_Multiply}
+    };
+
+    AkTransmissionOperation transmissionOperation = AkTransmissionOperation_Max;
+    const auto it = transmissionOperationValues.find(config.GetString(category, "eTransmissionOperation"));
+    if (it != transmissionOperationValues.end())
+    {
+        transmissionOperation = it->second;
+    }
+
+    SpatialAudioSettings.eTransmissionOperation = transmissionOperation;
 }

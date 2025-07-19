@@ -16,6 +16,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 
 add_executable(WwiseCmake
         src/main.cpp
+        src/audio/audio_config.h
         src/audio/audio_engine.h
         src/audio/audio_engine.cpp
         src/core/game.h
@@ -55,18 +56,25 @@ target_link_libraries(${PROJECT_NAME} PUBLIC wwise)
 
 # ............................
 
-# ASSETS AND CONTENT
+# CONTENT AND CONFIG
 
-# Define the assets folder path
+function(CopyFolderToTarget DIR_NAME SOURCE_DIR)
+    add_custom_command(
+            TARGET ${PROJECT_NAME}
+            POST_BUILD
+            COMMAND
+            ${CMAKE_COMMAND} -E copy_directory
+            ${SOURCE_DIR}
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/${DIR_NAME}
+    )
+endfunction()
+
+# Define the assets folder path and copy it to the build directory
 set(ASSETS_FOLDER_NAME "assets")
 set(ASSETS_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${ASSETS_FOLDER_NAME}")
+CopyFolderToTarget(${ASSETS_FOLDER_NAME} ${ASSETS_SOURCE_DIR})
 
-# Copy the "assets" folder content to the build
-add_custom_command(
-        TARGET ${PROJECT_NAME}
-        POST_BUILD
-        COMMAND
-        ${CMAKE_COMMAND} -E copy_directory
-        ${ASSETS_SOURCE_DIR}
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/${ASSETS_FOLDER_NAME}
-)
+# Define the config folder path and copy it to the build directory
+set(CONFIG_FOLDER_NAME "config")
+set(CONFIG_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${CONFIG_FOLDER_NAME}")
+CopyFolderToTarget(${CONFIG_FOLDER_NAME} ${CONFIG_SOURCE_DIR})

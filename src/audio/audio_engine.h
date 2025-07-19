@@ -1,19 +1,15 @@
 #ifndef AUDIO_ENGINE_HPP
 #define AUDIO_ENGINE_HPP
 
-#include <AK/MusicEngine/Common/AkMusicEngine.h>
-#include <AK/SoundEngine/Common/AkMemoryMgrModule.h>
-#include <AK/SoundEngine/Common/AkSoundEngine.h>
-#include <AK/SoundEngine/Common/AkStreamMgrModule.h>
-#include <AK/SpatialAudio/Common/AkSpatialAudio.h>
-#include <AkFilePackageLowLevelIODeferred.h> // Low Level IO implementation in the "/samples/SoundEngine" folder
-
-#ifndef AK_OPTIMIZED // The profiler module
-    #include <AK/Comm/AkCommunication.h>
-#endif
+// Low Level IO implementation in the "/samples/SoundEngine" folder
+#include <AkFilePackageLowLevelIODeferred.h>
 
 #include <memory>
 #include <string>
+
+#include "audio_config.h"
+
+struct AkSpatialAudioInitSettings;
 
 using AudioBankType = AkBankType;
 using AudioCallbackInfo = AkCallbackInfo;
@@ -83,27 +79,13 @@ class AudioEngine
 		AkGameObjectID defaultAudioObject;
 		AkGameObjectID defaultAudioListener;
 
-#pragma region SETTINGS
-
-		AkMemSettings mMemorySettings;
-		AkStreamMgrSettings mStreamingSettings;
-		AkDeviceSettings mStreamingDeviceSettings;
 		CAkFilePackageLowLevelIODeferred mLowLevelIO;
-		AkInitSettings mInitSettings;
-		AkPlatformInitSettings mPlatformInitSettings;
-		AkMusicSettings mMusicSettings;
-		AkSpatialAudioInitSettings mSpatialAudioSettings;
-
-#ifndef AK_OPTIMIZED
-		AkCommSettings mCommunicationSettings;
-#endif
 
 		AudioEngine();
-
-		// Set Init settings after AK::SoundEngine::GetDefaultInitSettings
-		void SetInitSettings();
 		bool Initialize_Internal();
 
-#pragma endregion
+		static void SetAudioEngineInitSettings(AkInitSettings& InitSettings, const AudioConfig& config);
+		static void SetPlatformInitSettings(AkPlatformInitSettings& PlatformInitSettings, const AudioConfig& config);
+		static void SetSpatialAudioInitSettings(AkSpatialAudioInitSettings& SpatialAudioSettings, const AudioConfig& config);
 };
 #endif
