@@ -1,10 +1,11 @@
-# Refer to https://www.audiokinetic.com/en/public-library/2024.1.5_8803/?source=SDK&id=goingfurther_builds.html
+# Refer to https://www.audiokinetic.com/en/public-library/2024.1.8_8898/?source=SDK&id=goingfurther.html
 
 ###
 ## 1 - Define and add the Wwise Library
 ###
 
-add_library(wwise STATIC IMPORTED GLOBAL)
+add_library(wwise INTERFACE)
+
 
 ###
 ## 2 - Set the paths to find all the Wwise dynamic and static libraries
@@ -33,6 +34,7 @@ elseif (APPLE)
     set(WWISE_RELEASE_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/${PLATFORM_CONFIG}/Release/lib")
     target_compile_definitions(wwise INTERFACE "AUDIO_PLATFORM=\"Mac\"")
 endif ()
+
 
 ###
 ## 3 - Find all the Wwise Core Libraries + Codecs + its dynamic library plugins
@@ -106,13 +108,14 @@ file(INSTALL ${PLUGIN_DLLS} DESTINATION ${WWISE_PLUGINS_DESTINATION}
         USE_SOURCE_PERMISSIONS
         FILES_MATCHING PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
+
 ###
 ## 5 - Build and link the Default Wwise Streaming Manager
 ###
 
 # Required! unless you create your own manager implementation
 # Copy the "samples/SoundEngine" folder from the Wwise SDK
-# https://www.audiokinetic.com/en/public-library/2024.1.5_8803/?source=SDK&id=streamingdevicemanager.html
+# https://www.audiokinetic.com/en/public-library/2024.1.8_8898/?source=SDK&id=streamingdevicemanager.html
 set(WWISE_STRM_MNG_PATH "${CMAKE_CURRENT_SOURCE_DIR}/samples/SoundEngine")
 
 if (WIN32 AND MSVC)
@@ -149,14 +152,6 @@ target_link_libraries(wwise_streaming_manager PUBLIC wwise ${WWISE_CORE_LIBS})
 
 # The AK_OPTIMIZED definition is required to ignore unnecessary code on release builds
 target_compile_definitions(wwise INTERFACE $<$<CONFIG:Release>:AK_OPTIMIZED>)
-
-if (WIN32 AND MSVC)
-    set_property(TARGET wwise PROPERTY IMPORTED_LOCATION_DEBUG "${WWISE_DEBUG_LIB_PATH}/AkSoundEngine.lib")
-    set_property(TARGET wwise PROPERTY IMPORTED_LOCATION_RELEASE "${WWISE_RELEASE_LIB_PATH}/AkSoundEngine.lib")
-elseif (APPLE)
-    set_property(TARGET wwise PROPERTY IMPORTED_LOCATION_DEBUG "${WWISE_DEBUG_LIB_PATH}/libAkSoundEngine.a")
-    set_property(TARGET wwise PROPERTY IMPORTED_LOCATION_RELEASE "${WWISE_RELEASE_LIB_PATH}/libAkSoundEngine.a")
-endif ()
 
 set_property(TARGET wwise PROPERTY INTERFACE_LINK_LIBRARIES ${WWISE_CORE_LIBS})
 set_property(TARGET wwise APPEND PROPERTY INTERFACE_LINK_LIBRARIES wwise_streaming_manager)
