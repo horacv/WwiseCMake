@@ -131,6 +131,10 @@ file(GLOB WWISE_STRM_MNG_SOURCES
         "${WWISE_STRM_MNG_INCLUDE_PATH}/*.h"
         "${WWISE_STRM_MNG_INCLUDE_PATH}/*.cpp")
 
+# Remove the stub file to avoid duplicate symbol definitions
+list(REMOVE_ITEM WWISE_STRM_MNG_SOURCES
+        "${WWISE_STRM_MNG_INCLUDE_PATH}/AkPlatformProfilerHookStubs.cpp")
+
 add_library(wwise_streaming_manager STATIC
         ${WWISE_STRM_MNG_SOURCES}
         ${WWISE_STRM_MNG_PLATFORM_SOURCES})
