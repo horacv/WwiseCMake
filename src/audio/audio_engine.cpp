@@ -220,7 +220,7 @@ bool AudioEngine::AudioObjectSetPosition(const uint64_t audioObjectID, const Aud
 }
 
 uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const uint64_t audioObjectID,
-    const AudioCallbackType callbackType, const AudioEventCallback callback, void* callbackCookie)
+    const AudioCallbackType callbackType, const AudioCallbackFunc callback, void* callbackCookie)
 {
     const AkGameObjectID ID = audioObjectID <= 0 || audioObjectID == AK_INVALID_GAME_OBJECT ? Get().defaultAudioObject : audioObjectID;
 
@@ -231,7 +231,7 @@ uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const uint64_
 
 uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const AudioPosition& position,
     const uint64_t audioObjectID, const AudioCallbackType callbackType,
-    const AudioEventCallback callback, void* callbackCookie)
+    const AudioCallbackFunc callback, void* callbackCookie)
 {
     if (!IsInitialized()) { return 0; }
     AK::SoundEngine::SetPosition(audioObjectID, position);

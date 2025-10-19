@@ -10,3 +10,6 @@ libs/wwise/**
 !libs/wwise/**/
 !libs/wwise/**/CMakeLists.txt
 !libs/wwise/**/readme.md
+
+wwise_project/**
+!wwise_project/readme.md

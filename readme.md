@@ -59,6 +59,7 @@ Note that some IDEs can configure and build your project without using the comma
     - `CMakeLists.txt` - CMake configuration file for Wwise
   - `CMakeLists.txt` - File that exposes the libraries to the main configuration file
 - `src/` - Source code directory
+- `wwise_project/` - Contains all Wwise authoring project files (Contents ignored by default)
 
 ## Official Documentation and Helpful Links
 
