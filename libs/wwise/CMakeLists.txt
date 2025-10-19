@@ -1,4 +1,4 @@
-# Refer to https://www.audiokinetic.com/en/public-library/2024.1.8_8898/?source=SDK&id=goingfurther.html
+# Refer to https://www.audiokinetic.com/en/public-library/2025.1.2_8976/?source=SDK&id=goingfurther.html
 
 ###
 ## 1 - Define and add the Wwise Library
@@ -22,7 +22,7 @@ if (WIN32 AND MSVC)
     target_compile_definitions(wwise INTERFACE "AUDIO_PLATFORM=\"Windows\"")
 
     # Required for the Wwise IAKStreamManager
-    # Refer to https://www.audiokinetic.com/en/library/edge/?source=SDK&id=projectsettings.html
+    # Refer to https://www.audiokinetic.com/en/public-library/2025.1.2_8976/?source=SDK&id=projectsettings.html
     # Same as "Treat wchar_t as Built-in Type" or "/Zc:wchar_t" compile flag"
     target_compile_definitions(wwise INTERFACE -DUNICODE -D_UNICODE)
 
@@ -47,7 +47,6 @@ set(WWISE_CORE_COMPONENTS # Required for all configurations
         "AkSoundEngine"
         "AkMemoryMgr"
         "AkStreamMgr"
-        "AkMusicEngine"
         "AkSpatialAudio"
         ${WWISE_CORE_CODEC_COMPONENTS}
 )
@@ -115,7 +114,7 @@ file(INSTALL ${PLUGIN_DLLS} DESTINATION ${WWISE_PLUGINS_DESTINATION}
 
 # Required! unless you create your own manager implementation
 # Copy the "samples/SoundEngine" folder from the Wwise SDK
-# https://www.audiokinetic.com/en/public-library/2024.1.8_8898/?source=SDK&id=streamingdevicemanager.html
+# https://www.audiokinetic.com/en/public-library/2025.1.2_8976/?source=SDK&id=streamingdevicemanager.html
 set(WWISE_STRM_MNG_PATH "${CMAKE_CURRENT_SOURCE_DIR}/samples/SoundEngine")
 
 if (WIN32 AND MSVC)
@@ -167,7 +166,7 @@ target_include_directories(wwise INTERFACE
 ###
 
 # Refer to the " External Library Dependencies" section here:
-# https://www.audiokinetic.com/en/public-library/2024.1.5_8803/?source=SDK&id=goingfurther_builds.html
+# https://www.audiokinetic.com/en/public-library/2025.1.2_8976/?source=SDK&id=goingfurther_builds.html
 if (WIN32 AND MSVC)
     set(PLATFORM_EXT_LIBS
             "dinput8"

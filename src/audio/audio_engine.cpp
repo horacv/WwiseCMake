@@ -6,7 +6,6 @@
 #include <AK/Plugin/AkOpusDecoderFactory.h>
 /*******************************************/
 
-#include <AK/MusicEngine/Common/AkMusicEngine.h>
 #include <AK/SoundEngine/Common/AkMemoryMgrModule.h>
 #include <AK/SoundEngine/Common/AkSoundEngine.h>
 #include <AK/SoundEngine/Common/AkStreamMgrModule.h>
@@ -92,13 +91,6 @@ bool AudioEngine::Initialize_Internal()
         assert(!"Could not initialize the Sound Engine.");
     }
 
-    AkMusicSettings mMusicSettings{};
-    AK::MusicEngine::GetDefaultInitSettings(mMusicSettings);
-    if (AK::MusicEngine::Init(&mMusicSettings) != AK_Success)
-    {
-        assert(!"Could not initialize the Music Engine.");
-    }
-
     AkSpatialAudioInitSettings SpatialAudioSettings{};
     SetSpatialAudioInitSettings(SpatialAudioSettings, config);
     if (AK::SpatialAudio::Init(SpatialAudioSettings) != AK_Success)
@@ -144,7 +136,6 @@ void AudioEngine::Terminate()
     AK::Comm::Term();
 #endif
 
-    AK::MusicEngine::Term();
     AK::SoundEngine::Term();
     Get().mLowLevelIO.Term();
 
@@ -220,7 +211,7 @@ bool AudioEngine::AudioObjectSetPosition(const uint64_t audioObjectID, const Aud
 }
 
 uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const uint64_t audioObjectID,
-    const AudioCallbackType callbackType, const AudioCallbackFunc callback, void* callbackCookie)
+    const AudioCallbackType callbackType, const AudioEventCallbackFunc callback, void* callbackCookie)
 {
     const AkGameObjectID ID = audioObjectID <= 0 || audioObjectID == AK_INVALID_GAME_OBJECT ? Get().defaultAudioObject : audioObjectID;
 
@@ -231,7 +222,7 @@ uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const uint64_
 
 uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const AudioPosition& position,
     const uint64_t audioObjectID, const AudioCallbackType callbackType,
-    const AudioCallbackFunc callback, void* callbackCookie)
+    const AudioEventCallbackFunc callback, void* callbackCookie)
 {
     if (!IsInitialized()) { return 0; }
     AK::SoundEngine::SetPosition(audioObjectID, position);

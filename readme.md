@@ -5,7 +5,7 @@ A CMake template project that demonstrates integration of Audiokinetic's Wwise a
 
 ![screenshot.png](images/screenshot.png)
 
-### Wwise SDK Version: 2024.1.8.8898
+### Wwise SDK Version: 2025.1.2.8976 (Beta 3)
 
 ## Overview
 
@@ -64,7 +64,7 @@ Note that some IDEs can configure and build your project without using the comma
 ## Official Documentation and Helpful Links
 
 Wwise - Sound Engine Integration Walkthrough\
-https://www.audiokinetic.com/en/public-library/2024.1.5_8803/?source=SDK&id=workingwithsdks.html
+https://www.audiokinetic.com/en/public-library/2025.1.2_8976/?source=SDK&id=workingwithsdks.html
 
 SDL and SDL_TTF\
 https://github.com/libsdl-org/SDL \

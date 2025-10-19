@@ -12,10 +12,10 @@
 struct AkSpatialAudioInitSettings;
 
 using AudioBankType = AkBankType;
-using AudioCallbackInfo = AkCallbackInfo;
+using AudioEventCallbackInfo = AkEventCallbackInfo;
 using AudioCallbackType = AkCallbackType;
 using AudioCurveInterpolation = AkCurveInterpolation;
-using AudioCallbackFunc = AkCallbackFunc;
+using AudioEventCallbackFunc = AkEventCallbackFunc;
 using AudioPosition = AkSoundPosition;
 
 
@@ -53,14 +53,14 @@ class AudioEngine
 		static uint32_t PlayAudioEvent(const std::string& eventName,
 			uint64_t audioObjectID = AK_INVALID_GAME_OBJECT,
 			AudioCallbackType callbackType = AK_CallbackBits,
-			AudioCallbackFunc callback = nullptr,
+			AudioEventCallbackFunc callback = nullptr,
 			void* callbackCookie = nullptr);
 
 		static uint32_t PlayAudioEvent(const std::string& eventName,
 			const AudioPosition& position,
 			uint64_t audioObjectID,
 			AudioCallbackType callbackType = AK_CallbackBits,
-			AudioCallbackFunc callback = nullptr,
+			AudioEventCallbackFunc callback = nullptr,
 			void* callbackCookie = nullptr);
 
 		// Parameters

@@ -142,14 +142,16 @@ void Game::Render() const
 	TTF_CloseFont(font);
 }
 
-void Game::GlobalAudioEventCallback(const AudioCallbackType type, AudioCallbackInfo* info)
+void Game::GlobalAudioEventCallback(const AudioCallbackType type,
+			AudioEventCallbackInfo* eventInfo, void* callbackInfo, void* cookie)
 {
-	if (!info) { return; }
+	if (!(cookie && callbackInfo)) { return; }
 
 	if (type == AK_MusicSyncBeat)
 	{
-		const auto game = static_cast<Game*>(info->pCookie);
-		const auto* musicInfo = static_cast<AkMusicSyncCallbackInfo*>(info);
+
+		const auto game = static_cast<Game*>(cookie);
+		const auto* musicInfo = static_cast<AkMusicSyncCallbackInfo*>(callbackInfo);
 		if (game && musicInfo)
 		{
 			const auto currentPositionMs = musicInfo->segmentInfo.iCurrentPosition + musicInfo->segmentInfo.iRemainingLookAheadTime;
@@ -161,7 +163,7 @@ void Game::GlobalAudioEventCallback(const AudioCallbackType type, AudioCallbackI
 			const auto currentBeat = currentBar == prevBar ? ++prevBeat : 1;
 
 			game->SetCurrentMusicBarAndBeat(currentBar, currentBeat);
-		}
+		 }
 	}
 
 	// Add more callback types here

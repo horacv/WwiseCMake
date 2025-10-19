@@ -37,12 +37,13 @@ class Game
 
 		/**
 		 * Audio Event Callback.
-		 * Refer to: https://www.audiokinetic.com/en/public-library/2024.1.6_8842/?source=SDK&id=soundengine_music_callbacks.html
+		 * Refer to: https://www.audiokinetic.com/en/public-library/2025.1.2_8976/?source=SDK&id=soundengine_music_callbacks.html
 		 * "The callbacks are done from the sound engine's main thread.
 		 * This means that your application should gather all the information it needs from the notification and return immediately.
 		 * If any processing needs to be done, it should be performed in a separate thread after the relevant information has been copied from the notification."
 		 */
-		static void GlobalAudioEventCallback(AudioCallbackType type, AudioCallbackInfo* info);
+		static void GlobalAudioEventCallback(AudioCallbackType type,
+			AudioEventCallbackInfo* eventInfo, void* callbackInfo, void* cookie);
 
 		void SetCurrentMusicBarAndBeat(int bar, int beat);
 		std::pair<int, int> GetCurrentMusicBarAndBeat() const;
