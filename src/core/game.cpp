@@ -142,14 +142,12 @@ void Game::Render() const
 	TTF_CloseFont(font);
 }
 
-void Game::GlobalAudioEventCallback(const AudioCallbackType type,
-			AudioEventCallbackInfo* eventInfo, void* callbackInfo, void* cookie)
+void Game::GlobalAudioEventCallback(const AudioCallbackType type, AudioEventCallbackInfo* eventInfo, void* callbackInfo, void* cookie)
 {
-	if (!(cookie && callbackInfo)) { return; }
+	if (!callbackInfo) { return; }
 
 	if (type == AK_MusicSyncBeat)
 	{
-
 		const auto game = static_cast<Game*>(cookie);
 		const auto* musicInfo = static_cast<AkMusicSyncCallbackInfo*>(callbackInfo);
 		if (game && musicInfo)
