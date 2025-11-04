@@ -18,7 +18,6 @@ using AudioCurveInterpolation = AkCurveInterpolation;
 using AudioCallbackFunc = AkCallbackFunc;
 using AudioPosition = AkSoundPosition;
 
-
 class AudioEngine
 {
 	public:
@@ -40,7 +39,7 @@ class AudioEngine
 
 		static void SetDefaultListener(uint64_t audioObjectID);
 
-		// Audio Objects (AkGameObjectID)
+		// Audio Objects
 
 		static uint64_t GetNewAudioObjectID();
 		static bool RegisterAudioObject(uint64_t audioObjectID, const std::string& name = std::string());
@@ -66,26 +65,19 @@ class AudioEngine
 		// Parameters
 
 		static bool SetState(const std::string& stateGroup, const std::string& stateValue);
-		static void SetSwitch(const std::string& switchGroup, const std::string& switchValue, uint64_t audioObjectID);
+		static bool SetSwitch(const std::string& switchGroup, const std::string& switchValue, uint64_t audioObjectID);
 		static bool SetParameter(const std::string& parameterName, float value,
 			uint64_t audioObjectID = AK_INVALID_GAME_OBJECT, int valueChangeDuration = 0,
 			AudioCurveInterpolation curveInterpolation = AkCurveInterpolation_Linear,
 			bool bBypassInternalInterpolation = false);
 
 	private:
-
 		static std::unique_ptr<AudioEngine> sInstance;
-		static uint64_t nextAudioObjectID;
-		AkGameObjectID defaultAudioObject;
-		AkGameObjectID defaultAudioListener;
-
+		static uint64_t sNextAudioObjectID;
+		AkGameObjectID mDefaultAudioObject;
+		AkGameObjectID mDefaultAudioListener;
 		CAkFilePackageLowLevelIODeferred mLowLevelIO;
 
 		AudioEngine();
-		bool Initialize_Internal();
-
-		static void SetAudioEngineInitSettings(AkInitSettings& InitSettings, const AudioConfig& config);
-		static void SetPlatformInitSettings(AkPlatformInitSettings& PlatformInitSettings, const AudioConfig& config);
-		static void SetSpatialAudioInitSettings(AkSpatialAudioInitSettings& SpatialAudioSettings, const AudioConfig& config);
 };
 #endif

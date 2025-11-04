@@ -17,13 +17,6 @@
  */
 class AudioConfig
 {
-	~AudioConfig()
-	{
-		ReleaseLoadedFile();
-	}
-
-	friend class AudioEngine;
-
 	static constexpr char CATEGORY_SEPARATOR = '.';
 	static constexpr char ARRAY_ITEM_SEPARATOR = ',';
 	static constexpr char COMMENT_CHAR = '#';
@@ -34,8 +27,13 @@ class AudioConfig
 	static constexpr char ARRAY_END = ')';
 	static constexpr char KEY_VALUE_SEPARATOR = '=';
 
-
 	std::ifstream mconfigFile = std::ifstream();
+
+public:
+	~AudioConfig()
+	{
+		ReleaseLoadedFile();
+	}
 
 	bool LoadConfigFile(const std::string& filePath)
 	{
@@ -146,6 +144,7 @@ class AudioConfig
 		return value == "true" || value == "1";
 	}
 
+private:
 	std::unordered_map<std::string, std::string> mConfigData;
 	std::unordered_map<std::string, std::vector<std::string>> mConfigArrayData;
 
