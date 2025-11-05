@@ -27,18 +27,63 @@ namespace
 {
     void SetAudioEngineInitSettings(AkInitSettings& InitSettings, const AudioConfig& config)
     {
-        const std::string& category = "AudioEngine";
-
         // Decided to keep this hard-coded because it's a pain to deal with wchar_t.
         InitSettings.szPluginDLLPath = AKTEXT("plugins/wwise");
 
-        InitSettings.uMaxNumPaths = config.GetInt(category, "uMaxNumPaths");
-        InitSettings.uNumSamplesPerFrame = config.GetInt(category, "uNumSamplesPerFrame");
-        InitSettings.uMonitorQueuePoolSize = config.GetInt(category, "uMonitorQueuePoolSize");
-        InitSettings.uCommandQueueSize = config.GetInt(category, "uCommandQueueSize");
-        InitSettings.fGameUnitsToMeters = config.GetFloat(category, "fGameUnitsToMeters");
-        InitSettings.bOfflineRendering = config.GetBool(category, "bOfflineRendering");
+        InitSettings.uMaxNumPaths = config.GetInt("AudioEngine", "uMaxNumPaths");
+        InitSettings.uCommandQueueSize = config.GetInt("AudioEngine", "uCommandQueueSize");
+        InitSettings.bEnableGameSyncPreparation = config.GetBool("AudioEngine", "bEnableGameSyncPreparation");
+        InitSettings.uContinuousPlaybackLookAhead = config.GetInt("AudioEngine", "uContinuousPlaybackLookAhead");
+        InitSettings.uNumSamplesPerFrame = config.GetInt("AudioEngine", "uNumSamplesPerFrame");
+        InitSettings.uMonitorQueuePoolSize = config.GetInt("AudioEngine", "uMonitorQueuePoolSize");
+        InitSettings.uCpuMonitorQueueMaxSize = config.GetInt("AudioEngine", "uCpuMonitorQueueMaxSize");
 
+        std::unordered_map<std::string, AkPanningRule> panningRules{
+            {"Speakers", AkPanningRule_Speakers},
+            {"Headphones", AkPanningRule_Headphones}
+        };
+
+        std::unordered_map<std::string, AkChannelConfigType> channelConfigTypes{
+                {"Anonymous", AK_ChannelConfigType_Anonymous},
+                {"Standard", AK_ChannelConfigType_Standard},
+                {"Ambisonic", AK_ChannelConfigType_Ambisonic},
+                {"Objects", AK_ChannelConfigType_Objects},
+                {"MainMix", AK_ChannelConfigType_UseDeviceMain},
+                {"Passthrough", AK_ChannelConfigType_UseDevicePassthrough},
+        };
+
+        // Main Output Settings
+        AkOutputSettings settingsMainOutput;
+        const std::string deviceName =  config.GetString("OutputSettings", "audioDeviceShareset");
+
+        AkPanningRule panningRule = AkPanningRule_Speakers;
+        if (const auto it = panningRules.find(config.GetString("OutputSettings", "ePanningRule"));
+            it != panningRules.end())
+        {
+            panningRule = it->second;
+        }
+
+        AkChannelConfigType channelConfig = AK_ChannelConfigType_Anonymous;
+        if (const auto it = channelConfigTypes.find(config.GetString("OutputSettings", "eConfigType"));
+            it != channelConfigTypes.end())
+        {
+            channelConfig = it->second;
+        }
+
+        settingsMainOutput.audioDeviceShareset = deviceName.empty() ? 0 : AK::SoundEngine::GetIDFromString(deviceName.c_str());
+        settingsMainOutput.idDevice = config.GetInt("OutputSettings", "idDevice");
+        settingsMainOutput.ePanningRule = panningRule;
+        settingsMainOutput.channelConfig.uNumChannels = config.GetInt("OutputSettings", "uNumChannels");
+        settingsMainOutput.channelConfig.eConfigType = channelConfig;
+        settingsMainOutput.channelConfig.uChannelMask = config.GetInt("OutputSettings", "uChannelMask");
+        InitSettings.settingsMainOutput = settingsMainOutput;
+        // Main Output Settings
+
+        InitSettings.uMaxHardwareTimeoutMs = config.GetInt("AudioEngine", "uCpuMonitorQueueMaxSize");
+        InitSettings.bUseSoundBankMgrThread = config.GetBool("AudioEngine", "bUseSoundBankMgrThread");
+        InitSettings.bUseLEngineThread = config.GetBool("AudioEngine", "bUseLEngineThread");
+
+        // Floor Plane Settings
         std::unordered_map<std::string, AkFloorPlane> floorPlaneValues{
             {"ZX", AkFloorPlane_Default},
             {"XY", AkFloorPlane_XY},
@@ -47,13 +92,20 @@ namespace
         };
 
         AkFloorPlane floorPlane = AkFloorPlane_Default;
-        if (const auto it = floorPlaneValues.find(config.GetString(category, "eFloorPlane"));
+        if (const auto it = floorPlaneValues.find(config.GetString("AudioEngine", "eFloorPlane"));
             it != floorPlaneValues.end())
         {
             floorPlane = it->second;
         }
 
         InitSettings.eFloorPlane = floorPlane;
+        // Floor Plane Settings
+
+        InitSettings.fGameUnitsToMeters = config.GetFloat("AudioEngine", "fGameUnitsToMeters");
+        InitSettings.uBankReadBufferSize = config.GetInt("AudioEngine", "uBankReadBufferSize");
+        InitSettings.fDebugOutOfRangeLimit = config.GetFloat("AudioEngine", "fDebugOutOfRangeLimit");
+        InitSettings.bDebugOutOfRangeCheckEnabled = config.GetBool("AudioEngine", "bDebugOutOfRangeCheckEnabled");
+        InitSettings.bOfflineRendering = config.GetBool("AudioEngine", "bOfflineRendering");
     }
 
     void SetPlatformInitSettings(AkPlatformInitSettings& PlatformInitSettings, const AudioConfig& config)
