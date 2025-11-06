@@ -133,6 +133,11 @@ namespace
 #endif
     }
 
+    void SetMusicSettings(AkMusicSettings& MusicSettings, const AudioConfig& config)
+    {
+        MusicSettings.fStreamingLookAheadRatio = config.GetFloat("MusicSettings", "fStreamingLookAheadRatio");
+    }
+
     void SetSpatialAudioInitSettings(AkSpatialAudioInitSettings& SpatialAudioSettings, const AudioConfig& config)
     {
         const std::string& category = "SpatialAudio";
@@ -239,6 +244,7 @@ bool AudioEngine::Initialize()
 
     AkMusicSettings mMusicSettings{};
     AK::MusicEngine::GetDefaultInitSettings(mMusicSettings);
+    SetMusicSettings(mMusicSettings, config);
     if (AK::MusicEngine::Init(&mMusicSettings) != AK_Success)
     {
         assert(!"Could not initialize the Music Engine.");
