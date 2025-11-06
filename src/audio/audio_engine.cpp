@@ -26,6 +26,17 @@ uint64_t AudioEngine::sNextAudioObjectID = 0;
 
 namespace
 {
+    void SetAudioStreamingDeviceSettings(AkDeviceSettings& DeviceSettings, const AudioConfig& config)
+    {
+        DeviceSettings.uIOMemorySize = config.GetInt("DeviceSettings", "uIOMemorySize");
+        DeviceSettings.uIOMemoryAlignment = config.GetInt("DeviceSettings", "uIOMemoryAlignment");
+        DeviceSettings.uGranularity = config.GetInt("DeviceSettings", "uGranularity");
+        DeviceSettings.fTargetAutoStmBufferLength = config.GetFloat("DeviceSettings", "fTargetAutoStmBufferLength");
+        DeviceSettings.uMaxConcurrentIO = config.GetInt("DeviceSettings", "uMaxConcurrentIO");
+        DeviceSettings.bUseStreamCache = config.GetBool("DeviceSettings", "bUseStreamCache");
+        DeviceSettings.uMaxCachePinnedBytes = static_cast<uint32_t>(config.GetInt("DeviceSettings", "uMaxCachePinnedBytes", -1));
+    }
+
     void SetAudioEngineInitSettings(AkInitSettings& InitSettings, const AudioConfig& config)
     {
         // Decided to keep this hard-coded because it's a pain to deal with wchar_t.
@@ -204,6 +215,7 @@ bool AudioEngine::Initialize()
 
     AkDeviceSettings mStreamingDeviceSettings{};
     AK::StreamMgr::GetDefaultDeviceSettings(mStreamingDeviceSettings);
+    SetAudioStreamingDeviceSettings(mStreamingDeviceSettings, config);
     if (audioEngine.mLowLevelIO.Init(mStreamingDeviceSettings) != AK_Success)
     {
         assert(!"Could not initialize the Low-Level I/O system");
@@ -215,9 +227,9 @@ bool AudioEngine::Initialize()
     }
 
     AkInitSettings mInitSettings{};
-    AkPlatformInitSettings mPlatformInitSettings{};
     AK::SoundEngine::GetDefaultInitSettings(mInitSettings);
     SetAudioEngineInitSettings(mInitSettings, config);
+    AkPlatformInitSettings mPlatformInitSettings{};
     AK::SoundEngine::GetDefaultPlatformInitSettings(mPlatformInitSettings);
     SetPlatformInitSettings(mPlatformInitSettings, config);
     if (AK::SoundEngine::Init(&mInitSettings, &mPlatformInitSettings) != AK_Success)
