@@ -252,16 +252,16 @@ bool AudioEngine::Initialize()
     }
 #endif
 
-    if (!LoadSoundBank("Init.bnk"))
+    if (!SoundbankLoad("Init.bnk"))
     {
         assert(!"Failed to load Init.bnk");
     }
 
-    audioEngine.mDefaultAudioObject = GetNewAudioObjectID();
-    audioEngine.mDefaultAudioListener = GetNewAudioObjectID();
+    audioEngine.mDefaultAudioObject = AudioObjectGetNewID();
+    audioEngine.mDefaultAudioListener = AudioObjectGetNewID();
 
-    if (!(RegisterAudioObject(audioEngine.mDefaultAudioObject, "Default Object")
-        && RegisterAudioObject(audioEngine.mDefaultAudioListener, "Default Listener")))
+    if (!(AudioObjectRegister(audioEngine.mDefaultAudioObject, "Default Object")
+        && AudioObjectRegister(audioEngine.mDefaultAudioListener, "Default Listener")))
     {
         assert(!"Failed to register default audio game objects");
     }
@@ -307,14 +307,14 @@ bool AudioEngine::IsInitialized()
 
 // Soundbanks
 
-bool AudioEngine::LoadSoundBank(const std::string& bank, const AudioBankType type)
+bool AudioEngine::SoundbankLoad(const std::string& bank, const AudioBankType type)
 {
     if (!IsInitialized()) { return false; }
     AkBankID bankID;
     return AK::SoundEngine::LoadBank(bank.c_str(), bankID, type) == AK_Success;
 }
 
-bool AudioEngine::UnloadSoundBank(const std::string& bank, const AudioBankType type)
+bool AudioEngine::SoundbankUnload(const std::string& bank, const AudioBankType type)
 {
     if (!IsInitialized()) { return false; }
     return AK::SoundEngine::UnloadBank(bank.c_str(), nullptr, type);
@@ -332,26 +332,26 @@ void AudioEngine::SetDefaultListener(const uint64_t audioObjectID)
 
 // Audio Objects
 
-uint64_t AudioEngine::GetNewAudioObjectID()
+uint64_t AudioEngine::AudioObjectGetNewID()
 {
     return sNextAudioObjectID++;
 }
 
-bool AudioEngine::RegisterAudioObject(const uint64_t audioObjectID, const std::string& name)
+bool AudioEngine::AudioObjectRegister(const uint64_t audioObjectID, const std::string& name)
 {
     if (!IsInitialized()) { return false; }
     const AKRESULT result = AK::SoundEngine::RegisterGameObj(audioObjectID, name.c_str());
     return result == AK_Success;
 }
 
-bool AudioEngine::UnregisterAudioObject(const uint64_t audioObjectID)
+bool AudioEngine::AudioObjectUnregister(const uint64_t audioObjectID)
 {
     if (!IsInitialized()) { return false; }
     const AKRESULT result = AK::SoundEngine::UnregisterGameObj(audioObjectID);
     return result == AK_Success;
 }
 
-bool AudioEngine::UnregisterAllAudioObjects()
+bool AudioEngine::AudioObjectUnregisterAll()
 {
     if (!IsInitialized()) { return false; }
     const AKRESULT result = AK::SoundEngine::UnregisterAllGameObj();

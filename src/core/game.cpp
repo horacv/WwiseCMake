@@ -95,7 +95,7 @@ void Game::Start()
 	titleTextSurface = TTF_RenderText_Solid(font, "Wwise is Alive!", 0, fontColor);
 	titleTextTexture = SDL_CreateTextureFromSurface(mRenderer, titleTextSurface);
 
-	AudioEngine::LoadSoundBank("Music.bnk"); // AUDIO ENGINE: LOAD MUSIC BANK
+	AudioEngine::SoundbankLoad("Music.bnk"); // AUDIO ENGINE: LOAD MUSIC BANK
 	AudioEngine::PlayAudioEvent("MusicTest", AK_INVALID_AUDIO_OBJECT_ID,
 		AK_MusicSyncAll, GlobalAudioEventCallback, this); // AUDIO ENGINE: PLAY MUSIC EVENT
 

@@ -32,8 +32,8 @@ class AudioEngine
 
 		// Soundbanks
 
-		static bool LoadSoundBank(const std::string& bank, AudioBankType type = AkBankType_User);
-		static bool UnloadSoundBank(const std::string& bank, AudioBankType type = AkBankType_User);
+		static bool SoundbankLoad(const std::string& bank, AudioBankType type = AkBankType_User);
+		static bool SoundbankUnload(const std::string& bank, AudioBankType type = AkBankType_User);
 
 		// Listener
 
@@ -41,10 +41,10 @@ class AudioEngine
 
 		// Audio Objects
 
-		static uint64_t GetNewAudioObjectID();
-		static bool RegisterAudioObject(uint64_t audioObjectID, const std::string& name = std::string());
-		static bool UnregisterAudioObject(uint64_t audioObjectID);
-		static bool UnregisterAllAudioObjects();
+		static uint64_t AudioObjectGetNewID();
+		static bool AudioObjectRegister(uint64_t audioObjectID, const std::string& name = std::string());
+		static bool AudioObjectUnregister(uint64_t audioObjectID);
+		static bool AudioObjectUnregisterAll();
 		static bool AudioObjectSetPosition(uint64_t audioObjectID, const AudioPosition& position);
 
 		// Events
