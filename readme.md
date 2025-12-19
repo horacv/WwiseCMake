@@ -5,7 +5,7 @@ A CMake template project that demonstrates integration of Audiokinetic's Wwise a
 
 ![screenshot.png](images/screenshot.png)
 
-### Wwise SDK Version: 2024.1.8.8898
+### Verified Wwise SDK Version: 2024.1.10.8979
 
 ## Overview
 
