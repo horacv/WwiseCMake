@@ -21,7 +21,7 @@ This project showcases a basic integration between Wwise and SDL, featuring:
 
 - CMake 3.x or higher
 - Wwise SDK 
-- SDL3 and SDL3_TTF development libraries (included)
+- SDL3 and SDL3_TTF development libraries 
 - C++20 compatible compiler. C++17 is the minimum required for Wwise
 
 ## Building the Project
@@ -59,6 +59,7 @@ Note that some IDEs can configure and build your project without using the comma
     - `CMakeLists.txt` - CMake configuration file for Wwise
   - `CMakeLists.txt` - File that exposes the libraries to the main configuration file
 - `src/` - Source code directory
+- `tools/` - Automation scripts for dependency setup
 - `wwise_project/` - Contains all Wwise authoring project files (Contents ignored by default)
 
 ## Official Documentation and Helpful Links
