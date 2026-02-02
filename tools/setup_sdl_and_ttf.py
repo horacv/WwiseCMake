@@ -72,7 +72,7 @@ def main():
         installer_patterns = {
             'mac': {
                 'sdl': f'SDL3-{sdl_version}.dmg',
-                'ttf': f'SDL3_ttf-{sdl_version}.dmg'
+                'ttf': f'SDL3_ttf-{ttf_version}.dmg'
             },
             'windows': {
                 'sdl': f'SDL3-devel-{sdl_version}-VC.zip',
@@ -96,7 +96,7 @@ def main():
         run_command(INSTALL_SDL_BASE_SCRIPT, install_args)
 
         # Step 4: Install and extract API files (SDL_ttf)
-        print("\n[Step 3/4] Installing SDL TTF files...")
+        print("\n[Step 4/4] Installing SDL TTF files...")
         print("-" * 60)
 
         installer_name = installer_patterns.get(platform).get('ttf')

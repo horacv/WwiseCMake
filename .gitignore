@@ -5,6 +5,14 @@
 *CMakeFiles
 *.cmake
 
+
+libs/sdl/**
+!libs/sdl/
+!libs/sdl/**/
+!libs/sdl/**/CMakeLists.txt
+!libs/sdl/**/readme.md
+*.framework/
+
 libs/wwise/**
 !libs/wwise/
 !libs/wwise/**/
@@ -13,3 +21,4 @@ libs/wwise/**
 
 wwise_project/**
 !wwise_project/readme.md
+

@@ -17,6 +17,7 @@ SDL_LIB_DIR = PROJECT_ROOT / "libs" / "sdl"
 PLATFORM_CONFIG = {
     'windows': {
         'lib_subdir': 'win_x64',
+        'anchor_folder': 'lib',
         'api_structure': {
             'inc_dir': 'include/SDL3',
             'lib_dir': 'lib/x64',
@@ -24,9 +25,10 @@ PLATFORM_CONFIG = {
     },
     'mac': {
         'lib_subdir': 'mac',
+        'anchor_folder': 'macos-arm64_x86_64',
         'api_structure': {
-            'inc_dir': 'include/SDL3',
-            'lib_dir': 'lib/x64',
+            'inc_dir': 'macos-arm64_x86_64/SDL3.framework/Headers',
+            'lib_dir': 'macos-arm64_x86_64/SDL3.framework',
         }
     }
 }
@@ -83,7 +85,7 @@ def copy_api_files(temp_dir, platform):
     api_structure = config['api_structure']
 
     # Find the actual API directory in temp (may be nested)
-    api_dirs = list(temp_dir.rglob('lib'))
+    api_dirs = list(temp_dir.rglob(config['anchor_folder']))
     if not api_dirs:
         # Try alternate structure
         api_dirs = [temp_dir]
@@ -92,7 +94,7 @@ def copy_api_files(temp_dir, platform):
 
     # Copy SDL headers
     src = source_root / api_structure['inc_dir']
-    dst = SDL_LIB_DIR / api_structure['inc_dir']
+    dst = SDL_LIB_DIR / "include" / "SDL3"
     if src.exists():
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(src, dst, dirs_exist_ok=True)
@@ -105,10 +107,20 @@ def copy_api_files(temp_dir, platform):
     dst = SDL_LIB_DIR / "lib" / config['lib_subdir']
     if src.exists():
         dst.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(src, dst, dirs_exist_ok=True)
-        print(f"✓ Copied core libraries ({len(list(dst.glob('*')))} files)")
-    else:
-        print(f"⚠ Warning: Core libraries not found at {src}")
+        if src.exists():
+            if platform == "mac":
+                # Copy the whole framework bundle into libs/sdl/lib/mac/SDL3.framework
+                dst = SDL_LIB_DIR / "lib" / config['lib_subdir'] / src.name
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copytree(src, dst, dirs_exist_ok=True)
+                print(f"✓ Copied core framework ({src.name})")
+            else:
+                dst = SDL_LIB_DIR / "lib" / config['lib_subdir']
+                dst.parent.mkdir(parents=True, exist_ok=True)
+                shutil.copytree(src, dst, dirs_exist_ok=True)
+                print(f"✓ Copied core libraries ({len(list(dst.glob('*')))} files)")
+        else:
+            print(f"⚠ Warning: Core libraries not found at {src}")
 
 
 def main():
