@@ -40,3 +40,21 @@ Extracts and copies SDL or SDL_ttf files from a local archive to the project's `
 python install_sdl_base.py <installer_file> [--delete-installer]
 python install_sdl_ttf.py <installer_file> [--delete-installer]
 ```
+
+---
+
+### Wwise Scripts
+
+#### `install_wwise_sdk.py`
+Copies Wwise SDK files from a local installation to the project's `libs/wwise` directory.
+
+```bash
+python install_wwise_sdk.py <sdk_path> <platform>
+```
+- **sdk_path**: Path to the Wwise SDK folder (e.g., `C:\Audiokinetic\Wwise2025.1.4.9062\SDK`).
+- **platform**: `windows` or `mac`.
+
+**Example:**
+```bash
+python install_wwise_sdk.py "C:\Audiokinetic\Wwise 2024.1.0.8669\SDK" windows
+```

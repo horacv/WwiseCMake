@@ -58,54 +58,54 @@ set(WWISE_CORE_LIBS)
 # Find all the core Wwise static libraries (core components)
 # Find all the dynamic library plugins (AkGain, AkRoomVerb, AkDelay, AkMasteringSuite..., or your custom plugins)
 if (WIN32 AND MSVC)
-    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # For Debug configuration
+    foreach(COMPONENT ${WWISE_CORE_DEBUG_COMPONENTS})
+        list(APPEND WWISE_DEBUG_LIBS "${WWISE_DEBUG_LIB_PATH}/${COMPONENT}.lib")
+    endforeach()
+    file(GLOB DEBUG_PLUGIN_DLLS "${WWISE_DEBUG_DLL_PATH}/*.dll")
 
-        foreach(COMPONENT ${WWISE_CORE_DEBUG_COMPONENTS})
-            list(APPEND WWISE_CORE_LIBS "${WWISE_DEBUG_LIB_PATH}/${COMPONENT}.lib")
-        endforeach()
-        file(GLOB PLUGIN_DLLS "${WWISE_DEBUG_DLL_PATH}/*.dll")
+    # For Release configuration
+    foreach(COMPONENT ${WWISE_CORE_COMPONENTS})
+        list(APPEND WWISE_RELEASE_LIBS "${WWISE_RELEASE_LIB_PATH}/${COMPONENT}.lib")
+    endforeach()
+    file(GLOB RELEASE_PLUGIN_DLLS "${WWISE_RELEASE_DLL_PATH}/*.dll")
 
-    elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-
-        foreach(COMPONENT ${WWISE_CORE_COMPONENTS})
-            list(APPEND WWISE_CORE_LIBS "${WWISE_RELEASE_LIB_PATH}/${COMPONENT}.lib")
-        endforeach()
-        file(GLOB PLUGIN_DLLS "${WWISE_RELEASE_DLL_PATH}/*.dll")
-
-    endif()
 elseif (APPLE)
-    if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    # For Debug configuration
+    foreach(COMPONENT ${WWISE_CORE_DEBUG_COMPONENTS})
+        list(APPEND WWISE_DEBUG_LIBS "${WWISE_DEBUG_LIB_PATH}/lib${COMPONENT}.a")
+    endforeach()
+    file(GLOB DEBUG_PLUGIN_DLLS "${WWISE_DEBUG_DLL_PATH}/*.dylib")
 
-        foreach(COMPONENT ${WWISE_CORE_DEBUG_COMPONENTS})
-            list(APPEND WWISE_CORE_LIBS "${WWISE_DEBUG_LIB_PATH}/lib${COMPONENT}.a")
-        endforeach()
-        file(GLOB PLUGIN_DLLS "${WWISE_DEBUG_DLL_PATH}/*.dylib")
-
-    elseif (CMAKE_BUILD_TYPE STREQUAL "Release")
-
-        foreach(COMPONENT ${WWISE_CORE_COMPONENTS})
-            list(APPEND WWISE_CORE_LIBS "${WWISE_RELEASE_LIB_PATH}/lib${COMPONENT}.a")
-        endforeach()
-        file(GLOB PLUGIN_DLLS "${WWISE_RELEASE_DLL_PATH}/*.dylib")
-
-    endif()
+    # For Release configuration
+    foreach(COMPONENT ${WWISE_CORE_COMPONENTS})
+        list(APPEND WWISE_RELEASE_LIBS "${WWISE_RELEASE_LIB_PATH}/lib${COMPONENT}.a")
+    endforeach()
+    file(GLOB RELEASE_PLUGIN_DLLS "${WWISE_RELEASE_DLL_PATH}/*.dylib")
 endif ()
+
+# Use generator expressions to select correct libraries based on configuration
+set(WWISE_CORE_LIBS "$<IF:$<CONFIG:Debug>,${WWISE_DEBUG_LIBS},${WWISE_RELEASE_LIBS}>")
+set(PLUGIN_DLLS "$<IF:$<CONFIG:Debug>,${DEBUG_PLUGIN_DLLS},${RELEASE_PLUGIN_DLLS}>")
 
 
 ###
 ## 4 - Copy all the Wwise audio plugins to the build folder
 ###
 
-if (DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
-    set(WWISE_PLUGINS_DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/wwise")
-else ()
-    set(WWISE_PLUGINS_DESTINATION "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/plugins/wwise")
-endif ()
+# Copy DLLs for both configurations at build time using custom targets
+# This ensures DLLs are copied for multi-config generators like Visual Studio
+add_custom_target(copy_wwise_plugins_debug ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:wwise_streaming_manager>/plugins/wwise"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DEBUG_PLUGIN_DLLS} "$<TARGET_FILE_DIR:wwise_streaming_manager>/plugins/wwise"
+    COMMENT "Copying Wwise Debug plugins to build directory"
+)
 
-# Install all the dynamic library plugins in the build folder
-file(INSTALL ${PLUGIN_DLLS} DESTINATION ${WWISE_PLUGINS_DESTINATION}
-        USE_SOURCE_PERMISSIONS
-        FILES_MATCHING PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}")
+add_custom_target(copy_wwise_plugins_release ALL
+    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:wwise_streaming_manager>/plugins/wwise"
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RELEASE_PLUGIN_DLLS} "$<TARGET_FILE_DIR:wwise_streaming_manager>/plugins/wwise"
+    COMMENT "Copying Wwise Release plugins to build directory"
+)
 
 
 ###
@@ -175,10 +175,11 @@ if (WIN32 AND MSVC)
             "dxguid"
             "xinput"
     )
-    if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-        # Winsock 2 Enables communication with the profiler
-        list(APPEND PLATFORM_EXT_LIBS "ws2_32")
-    endif()
+    set(PLATFORM_EXT_LIBS_DEBUG
+            ${PLATFORM_EXT_LIBS}
+            "ws2_32"  # Winsock 2 - Required by CommunicationCentral in Debug builds
+    )
+    set(PLATFORM_EXT_LIBS_RELEASE ${PLATFORM_EXT_LIBS})
 elseif (APPLE)
     set(PLATFORM_EXT_LIBS
             "-framework Foundation"
@@ -187,6 +188,8 @@ elseif (APPLE)
             "-framework CoreAudio"
             "-framework AVFoundation"
     )
+    set(PLATFORM_EXT_LIBS_DEBUG ${PLATFORM_EXT_LIBS})
+    set(PLATFORM_EXT_LIBS_RELEASE ${PLATFORM_EXT_LIBS})
 endif ()
 
-target_link_libraries(wwise INTERFACE ${WWISE_CORE_LIBS} ${PLATFORM_EXT_LIBS})
+target_link_libraries(wwise INTERFACE ${WWISE_CORE_LIBS} "$<IF:$<CONFIG:Debug>,${PLATFORM_EXT_LIBS_DEBUG},${PLATFORM_EXT_LIBS_RELEASE}>")

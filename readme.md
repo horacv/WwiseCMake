@@ -3,6 +3,8 @@
 
 A CMake template project that demonstrates integration of Audiokinetic's Wwise audio engine with any software project.
 
+[![Build And Test](https://github.com/horacv/WwiseCMake/actions/workflows/build-test.yml/badge.svg)](https://github.com/horacv/WwiseCMake/actions/workflows/build-test.yml)
+
 ![screenshot.png](images/screenshot.png)
 
 ### Verified Wwise SDK Version: 2025.1.4.9062
@@ -27,7 +29,7 @@ This project showcases a basic integration between Wwise and SDL, featuring:
 ## Building the Project
 
 1. Clone or download the repository
-2. Copy the Wwise SDK and the libraries for your target platform
+2. Download and copy the Wwise SDK and the libraries for your target platform. You can use the scripts in [tools/](tools/readme.md) to automate this process.
 3. Configue the project by using the command line or an IDE
 4. Build using your favorite IDE and compiler
 
