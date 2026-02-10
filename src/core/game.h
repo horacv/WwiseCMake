@@ -2,8 +2,7 @@
 #define GAME_HPP
 
 #include "audio/audio_engine.h"
-#include <SDL3/SDL.h>
-#include <mutex>
+#include "gui/gui_events.h"
 
 class Game
 {
@@ -30,10 +29,14 @@ class Game
 		int mCurrentMusicBar;
 		int mCurrentMusicBeat;
 
-		void Update();
-		void ProcessInput();
+		std::vector<GUIEvent> guiEvents;
+
 		void Start();
-		void Render() const;
+		void ProcessEvents();
+		void ConsumeGUIEvents();
+		void ConsumeInputEvents();
+		void Update();
+		void Render();
 
 		/**
 		 * Audio Event Callback.

@@ -5,6 +5,15 @@
 *CMakeFiles
 *.cmake
 
+libs/imgui/**
+!libs/imgui/
+!libs/imgui/**/
+libs/imgui/docs
+libs/imgui/examples
+libs/imgui/libs
+libs/imgui/misc
+!libs/imgui/**/CMakeLists.txt
+!libs/imgui/**/readme.md
 
 libs/sdl/**
 !libs/sdl/

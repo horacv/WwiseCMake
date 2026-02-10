@@ -170,6 +170,9 @@ namespace
 #ifndef AK_OPTIMIZED
     void SetCommunicationSettings(AkCommSettings& CommunicationSettings, const AudioConfig& config)
     {
+        const std::string& appName = config.GetString("CommunicationSettings", "szAppNetworkName");
+        std::snprintf(CommunicationSettings.szAppNetworkName, sizeof(CommunicationSettings.szAppNetworkName), "%s", appName.c_str());
+
         CommunicationSettings.bInitSystemLib = config.GetBool("CommunicationSettings", "bInitSystemLib");
 
         std::unordered_map<std::string, AkCommSettings::AkCommSystem> communicationSystems{
@@ -185,8 +188,8 @@ namespace
         }
 
         CommunicationSettings.commSystem = communicationSystem;
-        CommunicationSettings.ports.uCommand = config.GetBool("CommunicationSettings", "ports.uCommand");
-        CommunicationSettings.ports.uDiscoveryBroadcast = config.GetBool("CommunicationSettings", "ports.uDiscoveryBroadcast");
+        CommunicationSettings.ports.uCommand = config.GetInt("CommunicationSettings", "ports.uCommand");
+        CommunicationSettings.ports.uDiscoveryBroadcast = config.GetInt("CommunicationSettings", "ports.uDiscoveryBroadcast");
     }
 #endif
 }
@@ -433,5 +436,17 @@ bool AudioEngine::SetParameter(const std::string& parameterName, const float val
     if (!IsInitialized()) { return false; }
     const AKRESULT result = AK::SoundEngine::SetRTPCValue(parameterName.c_str(), value,
         audioObjectID, valueChangeDuration, curveInterpolation, bBypassInternalInterpolation);
+    return result == AK_Success;
+}
+
+bool AudioEngine::GetParameter(const std::string& parameterName, float& outValue, const AudioParameterType inParameterType,
+    AudioParameterType& outParameterType, const uint64_t inAudioObjectID, const uint32_t inEventInstanceID)
+{
+    if (!IsInitialized()) { return false; }
+    AudioParameterType type = inParameterType;
+    const AKRESULT result = AK::SoundEngine::Query::GetRTPCValue(parameterName.c_str(),
+        inAudioObjectID, inEventInstanceID, outValue, type);
+
+    outParameterType = type;
     return result == AK_Success;
 }
