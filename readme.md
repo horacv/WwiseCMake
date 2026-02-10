@@ -14,6 +14,7 @@ A CMake template project that demonstrates integration of Audiokinetic's Wwise a
 This project showcases a basic integration between Wwise and SDL, featuring:
 - A simple SDL window application
 - Wwise audio engine integration
+- Immediate mode user interface with Dear ImGui
 - Background music playback by posting an audio event on a soundbank
 - A basic audio engine class to interface between Wwise and the rest of the codebase
 - Detailed instructions on how to build and link all Wwise dependencies.
@@ -24,6 +25,7 @@ This project showcases a basic integration between Wwise and SDL, featuring:
 - CMake 3.x or higher
 - Wwise SDK 
 - SDL3 and SDL3_TTF development libraries 
+- Dear ImGui development libraries
 - C++20 compatible compiler. C++17 is the minimum required for Wwise
 
 ## Building the Project
@@ -50,6 +52,7 @@ Note that some IDEs can configure and build your project without using the comma
   - `soundbanks/` - Init.bnk, Music.bnk + wem files
 - `config/` - Contains a configuration file for the audio engine
 - `libs/` - Contains all "third-party" libraries for the project
+  - `imgui/` - Dear ImGui source files
   - `sdl/`
     - `include` - SDL header files
     - `lib` - SDL dynamic libraries
@@ -72,6 +75,9 @@ https://www.audiokinetic.com/en/public-library/2024.1.5_8803/?source=SDK&id=work
 SDL and SDL_TTF\
 https://github.com/libsdl-org/SDL \
 https://github.com/libsdl-org/SDL_ttf
+
+Dear ImGui\
+https://github.com/ocornut/imgui
 
 CMake\
 https://cmake.org/

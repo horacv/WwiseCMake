@@ -3,6 +3,8 @@
 
 // Low Level IO implementation in the "/samples/SoundEngine" folder
 #include <AkFilePackageLowLevelIODeferred.h>
+// Query namespace to retrieve data from Wwise
+#include "AK/SoundEngine/Common/AkQueryParameters.h"
 
 #include <memory>
 #include <string>
@@ -17,6 +19,7 @@ using AudioCallbackType = AkCallbackType;
 using AudioCurveInterpolation = AkCurveInterpolation;
 using AudioCallbackFunc = AkCallbackFunc;
 using AudioPosition = AkSoundPosition;
+using AudioParameterType = AK::SoundEngine::Query::RTPCValue_type;
 
 class AudioEngine
 {
@@ -66,10 +69,15 @@ class AudioEngine
 
 		static bool SetState(const std::string& stateGroup, const std::string& stateValue);
 		static bool SetSwitch(const std::string& switchGroup, const std::string& switchValue, uint64_t audioObjectID);
+
 		static bool SetParameter(const std::string& parameterName, float value,
 			uint64_t audioObjectID = AK_INVALID_GAME_OBJECT, int valueChangeDuration = 0,
 			AudioCurveInterpolation curveInterpolation = AkCurveInterpolation_Linear,
 			bool bBypassInternalInterpolation = false);
+
+		static bool GetParameter(const std::string& parameterName, float& outValue,
+			AudioParameterType inParameterType, AudioParameterType& outParameterType,
+			uint64_t inAudioObjectID = AK_INVALID_GAME_OBJECT,uint32_t inEventInstanceID = -1);
 
 	private:
 		static std::unique_ptr<AudioEngine> sInstance;

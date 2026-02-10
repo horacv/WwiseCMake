@@ -1,6 +1,7 @@
 #include "game.h"
 
 #include "audio/audio_engine.h"
+#include "gui/gui.h"
 #include <SDL3_ttf/SDL_ttf.h>
 #include <format>
 #include <iostream>
@@ -29,6 +30,8 @@ void Game::Initialize()
 	mRenderer = SDL_CreateRenderer(mWindow, nullptr);
 	mIsRunning = mWindow && mRenderer;
 
+	GUI::Initialize(mWindow, mRenderer, mWindowHeight, mWindowWidth);
+
 	std::cout << "Game Initialized" << std::endl;
 }
 
@@ -37,7 +40,7 @@ void Game::Run()
 	Start();
 	while (IsRunning())
 	{
-		ProcessInput();
+		ProcessEvents();
 		Update();
 		Render();
 	}
@@ -45,6 +48,8 @@ void Game::Run()
 
 void Game::Terminate() const
 {
+	GUI::Destroy();
+
 	TTF_Quit();
 	SDL_DestroyRenderer(mRenderer);
 	SDL_DestroyWindow(mWindow);
@@ -58,33 +63,6 @@ void Game::Terminate() const
 bool Game::IsRunning() const
 {
 	return mIsRunning;
-}
-
-void Game::Update()
-{
-	AudioEngine::RenderAudio(); // AUDIO ENGINE UPDATE - RENDER
-}
-
-void Game::ProcessInput()
-{
-	SDL_Event event;
-	while (SDL_PollEvent(&event))
-	{
-		switch (event.type)
-		{
-			case SDL_EVENT_QUIT:
-				mIsRunning = false;
-				break;
-			case SDL_EVENT_KEY_DOWN:
-				if (event.key.key == SDLK_ESCAPE)
-				{
-					mIsRunning = false;
-				}
-				break;
-			default:
-				break;
-		}
-	}
 }
 
 void Game::Start()
@@ -104,7 +82,51 @@ void Game::Start()
 	std::cout << "Game Started" << std::endl;
 }
 
-void Game::Render() const
+void Game::ProcessEvents()
+{
+	ConsumeGUIEvents();
+	ConsumeInputEvents();
+}
+
+void Game::ConsumeGUIEvents()
+{
+	for (auto& guiEvent : guiEvents)
+	{
+		if (std::holds_alternative<QuitRequestedEvent>(guiEvent)) { mIsRunning = false; }
+	}
+	guiEvents.clear();
+}
+
+void Game::ConsumeInputEvents()
+{
+	SDL_Event event;
+	while (SDL_PollEvent(&event))
+	{
+		GUI::ProcessEvents(&event);
+
+		switch (event.type)
+		{
+		case SDL_EVENT_QUIT:
+			mIsRunning = false;
+			break;
+		case SDL_EVENT_KEY_DOWN:
+			if (event.key.key == SDLK_ESCAPE)
+			{
+				mIsRunning = false;
+			}
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void Game::Update()
+{
+	AudioEngine::RenderAudio(); // AUDIO ENGINE UPDATE - RENDER
+}
+
+void Game::Render()
 {
 	SDL_SetRenderDrawColor(mRenderer, 21, 21, 21, 255);
 	SDL_RenderClear(mRenderer);
@@ -134,6 +156,12 @@ void Game::Render() const
 	textHeight = static_cast<float>(musicInfoTextSurface->h * 0.75);
 	textRectangle = {textPositionX, textPositionY, textWidth, textHeight};
 	SDL_RenderTexture(mRenderer, musicInfoTextTexture, nullptr, &textRectangle);
+
+	// GUI
+
+	GUI::Render(mRenderer, guiEvents);
+
+	// SDL Render
 
 	SDL_RenderPresent(mRenderer);
 

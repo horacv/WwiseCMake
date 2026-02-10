@@ -15,13 +15,33 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 
 add_executable(WwiseCmake
-        src/main.cpp
         src/audio/audio_config.h
-        src/audio/audio_engine.h
         src/audio/audio_engine.cpp
-        src/core/game.h
+        src/audio/audio_engine.h
         src/core/game.cpp
+        src/core/game.h
+        src/gui/gui.cpp
+        src/gui/gui.h
+        src/gui/gui_events.h
+        src/gui/gui_widget.h
+        src/gui/widgets/main_menu.cpp
+        src/gui/widgets/main_menu.h
+        src/gui/widgets/settings_menu_volume.cpp
+
+        src/main.cpp
+        src/pch.h
 )
+
+# Pre-Compiled headers section
+if(CMAKE_GENERATOR STREQUAL "Xcode")
+    set(CMAKE_XCODE_GENERATE_SCHEME ON)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            XCODE_ATTRIBUTE_GCC_PRECOMPILE_PREFIX_HEADER YES
+            XCODE_ATTRIBUTE_GCC_PREFIX_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/src/pch.h"
+    )
+else()
+    target_precompile_headers(${PROJECT_NAME} PRIVATE "src/pch.h")
+endif()
 
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
@@ -40,6 +60,9 @@ endfunction()
 add_subdirectory(libs)
 
 # LIBRARIES
+
+# imgui
+target_link_libraries(${PROJECT_NAME} PUBLIC imgui)
 
 # sdl
 target_link_libraries(${PROJECT_NAME} PUBLIC SDL)

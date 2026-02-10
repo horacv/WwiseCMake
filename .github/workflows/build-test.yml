@@ -15,11 +15,13 @@ jobs:
         os_config:
           - os: windows-latest
             platform: windows
+            imgui_version: "1.92.5"
             wwise_version: "2024.1.10.8979"
             sdl_version: "3.2.24"
             ttf_version: "3.2.2"
           - os: macos-latest
             platform: mac
+            imgui_version: "1.92.5"
             wwise_version: "2024.1.10.8979"
             sdl_version: "3.2.24"
             ttf_version: "3.2.2"
@@ -39,6 +41,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install requests
+
+      - name: Setup imGUI
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          python tools/setup_imgui_sources.py ${{ matrix.os_config.imgui_version }} --delete-installer
 
       - name: Setup Wwise API
         env:
