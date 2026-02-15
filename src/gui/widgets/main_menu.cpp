@@ -17,11 +17,11 @@ MainMenu::~MainMenu() = default;
 
 void MainMenu::Initialize()
 {
-	IGuiWidget::Initialize();
 	mSettingsVolumeMenu->Initialize();
+	IGuiWidget::Initialize();
 }
 
-void MainMenu::Stage(std::vector<GUIEvent>& outEvents)
+void MainMenu::Stage(std::vector<InputEvent>& outEvents)
 {
 	IGuiWidget::Stage(outEvents);
 

@@ -30,7 +30,7 @@ class AudioEngine
 		static void Terminate();
 
 		// Call this every frame on the program's update loop
-		static void RenderAudio();
+		static void Update();
 		static bool IsInitialized();
 
 		// Soundbanks

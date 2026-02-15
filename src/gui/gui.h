@@ -1,8 +1,9 @@
 #ifndef GUI_H
 #define GUI_H
 
-#include "gui_widget.h"
+#include "widgets/widget.h"
 
+struct MediaWindowSettings;
 struct SDL_Renderer;
 struct SDL_Window;
 union SDL_Event;
@@ -12,19 +13,21 @@ class GUI
     public:
         static GUI& Get();
 
-        static void Initialize(SDL_Window* window, SDL_Renderer* renderer, int windowHeight, int windowWidth);
+        static bool Initialize();
         static void ProcessEvents(const SDL_Event* event);
-        static void Render(SDL_Renderer* renderer, std::vector<GUIEvent>& outEvents);
-        static void Destroy();
+        static void RenderStage(std::vector<InputEvent>& outEvents);
+        static void RenderClear();
+        static void Terminate();
+
+        static bool IsInitialized();
 
     private:
         static std::unique_ptr<GUI> sInstance;
         std::unique_ptr<IGuiWidget> mMainMenu;
+        bool bIsInitialized;
 
         GUI();
-
         void InitializeWidgets() const;
-
-        static void StageWidgets(std::vector<GUIEvent>& outEvents);
+        static void StageWidgets(std::vector<InputEvent>& outEvents);
 };
 #endif

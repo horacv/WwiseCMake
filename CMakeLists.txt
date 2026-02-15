@@ -15,18 +15,24 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
 
 add_executable(WwiseCmake
+        src/app/app.cpp
+        src/app/app.h
         src/audio/audio_config.h
         src/audio/audio_engine.cpp
         src/audio/audio_engine.h
-        src/core/game.cpp
-        src/core/game.h
         src/gui/gui.cpp
         src/gui/gui.h
-        src/gui/gui_events.h
-        src/gui/gui_widget.h
         src/gui/widgets/main_menu.cpp
         src/gui/widgets/main_menu.h
         src/gui/widgets/settings_menu_volume.cpp
+        src/gui/widgets/widget.h
+        src/input/input_events.h
+        src/media/media_framework.cpp
+        src/media/media_framework.h
+        src/media/media_framework_data.h
+        src/pages/page.h
+        src/pages/page_cover.cpp
+        src/pages/page_cover.h
 
         src/main.cpp
         src/pch.h
