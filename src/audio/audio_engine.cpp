@@ -337,7 +337,7 @@ void AudioEngine::Terminate()
     std::cout << "Audio Engine Terminated" << std::endl;
 }
 
-void AudioEngine::RenderAudio()
+void AudioEngine::Update()
 {
     if (!IsInitialized()) { return; }
     AK::SoundEngine::RenderAudio();

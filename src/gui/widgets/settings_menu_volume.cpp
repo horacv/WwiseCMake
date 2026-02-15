@@ -31,8 +31,6 @@ SettingsMenuVolume::SettingsMenuVolume()
 
 void SettingsMenuVolume::Initialize()
 {
-	IGuiWidget::Initialize();
-
 	AudioParameterType outParamTemp;
 	AudioEngine::GetParameter(PARAM_MASTER_VOLUME, mMasterVolumeCurrent,
 		AudioParameterType::RTPCValue_Default, outParamTemp);
@@ -40,9 +38,10 @@ void SettingsMenuVolume::Initialize()
 		AudioParameterType::RTPCValue_Default, outParamTemp);
 	AudioEngine::GetParameter(PARAM_SFX_VOLUME, mSFXVolumeCurrent,
 		AudioParameterType::RTPCValue_Default, outParamTemp);
+	IGuiWidget::Initialize();
 }
 
-void SettingsMenuVolume::Stage(std::vector<GUIEvent>& outEvents)
+void SettingsMenuVolume::Stage(std::vector<InputEvent>& outEvents)
 {
 	IGuiWidget::Stage(outEvents);
 

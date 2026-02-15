@@ -1,11 +1,10 @@
-#include "core/game.h"
+#include "app/app.h"
 
 int main(int argc, char* argv[])
 {
-	Game game;
-	game.Initialize();
-	game.Run();
-	game.Terminate();
-
+	Application app;
+	app.Initialize();
+	app.Run();
+	app.Terminate();
 	return 0;
 }

@@ -4,12 +4,15 @@
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
+#include "media/media_framework.h"
+#include "media/media_framework_data.h"
 #include "widgets/main_menu.h"
 
 std::unique_ptr<GUI> GUI::sInstance = nullptr;
 
 GUI::GUI()
 : mMainMenu(std::make_unique<MainMenu>())
+, bIsInitialized(false)
 {}
 
 GUI& GUI::Get()
@@ -21,14 +24,15 @@ GUI& GUI::Get()
     return *sInstance;
 }
 
-void GUI::Initialize(SDL_Window* window, SDL_Renderer* renderer, const int windowHeight, const int windowWidth)
+bool GUI::Initialize()
 {
-    const auto& guiInstance = Get();
-
-    if (window == nullptr || renderer == nullptr)
+    SDL_Renderer* renderer; SDL_Window* window;
+    if (!(MediaFramework::GetRenderer(renderer) && MediaFramework::GetWindow(window)))
     {
-        assert(!"SDL window or renderer is null");
+        assert(!"Failed to retrieve renderer or window");
     }
+
+    const MediaWindowSettings& windowSettings = MediaFramework::GetCurrentWindowSettings();
 
     IMGUI_CHECKVERSION();
     if (!(ImGui::CreateContext()
@@ -40,9 +44,13 @@ void GUI::Initialize(SDL_Window* window, SDL_Renderer* renderer, const int windo
 
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-    io.DisplaySize = ImVec2(static_cast<float>(windowWidth), static_cast<float>(windowHeight));
+    io.DisplaySize = ImVec2(static_cast<float>(windowSettings.width), static_cast<float>(windowSettings.height));
 
-    guiInstance.InitializeWidgets();
+    auto& instance = Get();
+    instance.InitializeWidgets();
+    instance.bIsInitialized = true;
+
+    return true;
 }
 
 void GUI::ProcessEvents(const SDL_Event* event)
@@ -62,34 +70,48 @@ void GUI::ProcessEvents(const SDL_Event* event)
     }
 }
 
+void GUI::RenderClear()
+{
+    ImGui_ImplSDLRenderer3_NewFrame();
+    ImGui_ImplSDL3_NewFrame();
+    ImGui::NewFrame();
+}
+
 void GUI::InitializeWidgets() const
 {
     mMainMenu->Initialize();
 }
 
-void GUI::StageWidgets(std::vector<GUIEvent>& outEvents)
+void GUI::StageWidgets(std::vector<InputEvent>& outEvents)
 {
     //ImGui::ShowDemoWindow(); // Activate this to render the super useful ImGui demo window
 
-    const GUI& guiInstance = Get();
-    guiInstance.mMainMenu->Stage(outEvents);
+    const GUI& instance = Get();
+    instance.mMainMenu->Stage(outEvents);
 }
 
-void GUI::Render(SDL_Renderer* renderer, std::vector<GUIEvent>& outEvents)
+void GUI::RenderStage(std::vector<InputEvent>& outEvents)
 {
-    ImGui_ImplSDLRenderer3_NewFrame();
-    ImGui_ImplSDL3_NewFrame();
-    ImGui::NewFrame();
-
     StageWidgets(outEvents);
 
     ImGui::Render();
+    SDL_Renderer* renderer;
+    MediaFramework::GetRenderer(renderer);
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer);
 }
 
-void GUI::Destroy()
+void GUI::Terminate()
 {
+    const GUI& instance = Get();
+    assert(instance.bIsInitialized && "Trying to terminate uninitialized GUI");
+
     ImGui_ImplSDLRenderer3_Shutdown();
     ImGui_ImplSDL3_Shutdown();
     ImGui::DestroyContext();
+}
+
+bool GUI::IsInitialized()
+{
+    const GUI& guiInstance = Get();
+    return guiInstance.bIsInitialized;
 }
