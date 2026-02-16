@@ -1,12 +1,14 @@
 #ifndef SETTINGS_MENU_VOLUME_H
 #define SETTINGS_MENU_VOLUME_H
 
-#include "widget.h"
+#include "gui/widgets//widget.h"
 
-class SettingsMenuVolume final : public IGuiWidget
+class SettingsSubMenuVolume final : public IWidget
 {
 	public:
-		SettingsMenuVolume();
+		SettingsSubMenuVolume();
+		~SettingsSubMenuVolume() override = default;
+
 		void Initialize() override;
 		void Stage(std::vector<InputEvent>& outEvents) override;
 

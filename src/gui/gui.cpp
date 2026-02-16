@@ -1,12 +1,10 @@
 #include "gui.h"
 
-#include "SDL3/SDL_events.h"
-#include "imgui.h"
 #include "imgui_impl_sdl3.h"
 #include "imgui_impl_sdlrenderer3.h"
 #include "media/media_framework.h"
 #include "media/media_framework_data.h"
-#include "widgets/main_menu.h"
+#include "widgets/menus/main_menu.h"
 
 std::unique_ptr<GUI> GUI::sInstance = nullptr;
 

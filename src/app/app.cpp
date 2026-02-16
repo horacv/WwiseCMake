@@ -5,7 +5,6 @@
 #include "media/media_framework.h"
 #include "media/media_framework_data.h"
 #include "pages/page_cover.h"
-#include <iostream>
 
 const MediaWindowSettings INIT_WINDOW_SETTINGS{"Wwise is Alive!", 1024, 768};
 constexpr SDL_Color BACKGROUND_COLOR{21, 21, 21, 255};
