@@ -3,11 +3,11 @@
 
 #include "input/input_events.h"
 
-class IGuiWidget
+class IWidget
 {
 	public:
-		IGuiWidget() = default;
-		virtual ~IGuiWidget() = default;
+		IWidget() = default;
+		virtual ~IWidget() = default;
 		virtual void Initialize() { bIsInitialized = true; }
 		virtual void Stage(std::vector<InputEvent>& outEvents) { assert(bIsInitialized && "Widget not Initialized"); }
 		[[nodiscard]] bool IsInitialized() const { return bIsInitialized; }

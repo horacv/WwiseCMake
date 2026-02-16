@@ -1,7 +1,6 @@
 #include "page_cover.h"
 
 #include "media/media_framework.h"
-#include "SDL3_ttf/SDL_ttf.h"
 
 #define FONT_PATH "assets/fonts/arial.ttf"
 

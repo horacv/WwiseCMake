@@ -22,9 +22,16 @@ add_executable(WwiseCmake
         src/audio/audio_engine.h
         src/gui/gui.cpp
         src/gui/gui.h
-        src/gui/widgets/main_menu.cpp
-        src/gui/widgets/main_menu.h
-        src/gui/widgets/settings_menu_volume.cpp
+        src/gui/widgets/menus/main_menu.cpp
+        src/gui/widgets/menus/main_menu.h
+        src/gui/widgets/menus/main_menu_about.cpp
+        src/gui/widgets/menus/main_menu_about.h
+        src/gui/widgets/menus/main_menu_file.cpp
+        src/gui/widgets/menus/main_menu_file.h
+        src/gui/widgets/menus/main_menu_settings.cpp
+        src/gui/widgets/menus/main_menu_settings.h
+        src/gui/widgets/sub_menus/settings_submenu_volume.cpp
+        src/gui/widgets/sub_menus/settings_submenu_volume.h
         src/gui/widgets/widget.h
         src/input/input_events.h
         src/media/media_framework.cpp

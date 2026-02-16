@@ -23,7 +23,7 @@ class GUI
 
     private:
         static std::unique_ptr<GUI> sInstance;
-        std::unique_ptr<IGuiWidget> mMainMenu;
+        std::unique_ptr<IWidget> mMainMenu;
         bool bIsInitialized;
 
         GUI();
