@@ -82,7 +82,7 @@ void GUI::InitializeWidgets() const
 
 void GUI::StageWidgets(std::vector<InputEvent>& outEvents)
 {
-    ImGui::ShowDemoWindow(); // Activate this to render the super useful ImGui demo window
+    //ImGui::ShowDemoWindow(); // Activate this to render the super useful ImGui demo window
 
     const GUI& instance = Get();
     instance.mMainMenu->Stage(outEvents);
