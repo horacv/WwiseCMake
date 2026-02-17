@@ -7,11 +7,17 @@
 #include "widgets/menus/main_menu.h"
 
 std::unique_ptr<GUI> GUI::sInstance = nullptr;
+bool GUI::bRenderImGuiDemoWindow = false;
 
 GUI::GUI()
 : mMainMenu(std::make_unique<MainMenu>())
 , bIsInitialized(false)
-{}
+{
+    if (const char* envVar = SDL_GetEnvironmentVariable(SDL_GetEnvironment(),"IMGUI_DEMO"))
+    {
+        bRenderImGuiDemoWindow = envVar[0] == '1';
+    }
+}
 
 GUI& GUI::Get()
 {
@@ -82,7 +88,9 @@ void GUI::InitializeWidgets() const
 
 void GUI::StageWidgets(std::vector<InputEvent>& outEvents)
 {
-    //ImGui::ShowDemoWindow(); // Activate this to render the super useful ImGui demo window
+    // Activate this to render the super useful ImGui demo window
+    // with IMGUI_DEMO=1 as an environment variable
+    if (bRenderImGuiDemoWindow) { ImGui::ShowDemoWindow(); }
 
     const GUI& instance = Get();
     instance.mMainMenu->Stage(outEvents);
