@@ -26,6 +26,8 @@ class GUI
         std::unique_ptr<IWidget> mMainMenu;
         bool bIsInitialized;
 
+        static bool bRenderImGuiDemoWindow;
+
         GUI();
         void InitializeWidgets() const;
         static void StageWidgets(std::vector<InputEvent>& outEvents);
