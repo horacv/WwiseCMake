@@ -5,15 +5,18 @@
 #include "media/media_framework.h"
 #include "media/media_framework_data.h"
 #include "widgets/menus/main_menu.h"
+#include "widgets/overlays/audio_info_overlay.h"
 
 std::unique_ptr<GUI> GUI::sInstance = nullptr;
 bool GUI::bRenderImGuiDemoWindow = false;
 
 GUI::GUI()
-: mMainMenu(std::make_unique<MainMenu>())
-, bIsInitialized(false)
+: bIsInitialized(false)
+, mMainMenu(std::make_unique<MainMenu>())
+, bIsAudioInfoOverlayVisible(false)
+, mAudioInfoOverlay(std::make_unique<AudioInfoOverlay>())
 {
-    if (const char* envVar = SDL_GetEnvironmentVariable(SDL_GetEnvironment(),"IMGUI_DEMO"))
+    if (const char* envVar = SDL_GetEnvironmentVariable(SDL_GetEnvironment(), "IMGUI_DEMO"))
     {
         bRenderImGuiDemoWindow = envVar[0] == '1';
     }
@@ -84,6 +87,7 @@ void GUI::RenderClear()
 void GUI::InitializeWidgets() const
 {
     mMainMenu->Initialize();
+    mAudioInfoOverlay->Initialize();
 }
 
 void GUI::StageWidgets(std::vector<InputEvent>& outEvents)
@@ -92,8 +96,27 @@ void GUI::StageWidgets(std::vector<InputEvent>& outEvents)
     // with IMGUI_DEMO=1 as an environment variable
     if (bRenderImGuiDemoWindow) { ImGui::ShowDemoWindow(); }
 
-    const GUI& instance = Get();
+    GUI& instance = Get();
     instance.mMainMenu->Stage(outEvents);
+
+    instance.ConsumeInputEvents(outEvents);
+    if (instance.bIsAudioInfoOverlayVisible) { instance.mAudioInfoOverlay->Stage(outEvents); }
+}
+
+void GUI::ConsumeInputEvents(std::vector<InputEvent>& ioEvents)
+{
+    for (auto it = ioEvents.begin(); it != ioEvents.end();)
+    {
+        if (std::holds_alternative<ToggleAudioInfoOverlayEvent>(*it))
+        {
+            bIsAudioInfoOverlayVisible = !bIsAudioInfoOverlayVisible;
+            it = ioEvents.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
 }
 
 void GUI::RenderStage(std::vector<InputEvent>& outEvents)

@@ -69,9 +69,9 @@ void Application::InitializeCurrentPage() const
 void Application::ProcessEvents()
 {
 	MediaFramework::PollEvents(inputEventsCurrent);
-	for (auto& guiEvent : inputEventsCurrent)
+	for (auto& inputEvent : inputEventsCurrent)
 	{
-		if (std::holds_alternative<QuitRequestedEvent>(guiEvent)) { mIsRunning = false; }
+		if (std::holds_alternative<QuitRequestedEvent>(inputEvent)) { mIsRunning = false; }
 	}
 	inputEventsCurrent.clear();
 }

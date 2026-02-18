@@ -79,6 +79,12 @@ class AudioEngine
 			AudioParameterType inParameterType, AudioParameterType& outParameterType,
 			uint64_t inAudioObjectID = AK_INVALID_GAME_OBJECT,uint32_t inEventInstanceID = -1);
 
+		// Sound Engine Advanced
+
+		static uint32_t GetDeviceSampleRate();
+		static bool GetDeviceChannelConfigType(std::string& outChannelConfigType, uint32_t& outNumberOfChannels);
+		static bool GetDefaultAudioDeviceName(std::wstring& outCurrentDeviceName);
+
 	private:
 		static std::unique_ptr<AudioEngine> sInstance;
 		static uint64_t sNextAudioObjectID;

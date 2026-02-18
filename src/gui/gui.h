@@ -22,14 +22,19 @@ class GUI
         static bool IsInitialized();
 
     private:
-        static std::unique_ptr<GUI> sInstance;
-        std::unique_ptr<IWidget> mMainMenu;
         bool bIsInitialized;
-
         static bool bRenderImGuiDemoWindow;
+
+        static std::unique_ptr<GUI> sInstance;
+
+        std::unique_ptr<IWidget> mMainMenu;
+
+        bool bIsAudioInfoOverlayVisible;
+        std::unique_ptr<IWidget> mAudioInfoOverlay;
 
         GUI();
         void InitializeWidgets() const;
         static void StageWidgets(std::vector<InputEvent>& outEvents);
+        void ConsumeInputEvents(std::vector<InputEvent>& ioEvents);
 };
 #endif

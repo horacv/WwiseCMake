@@ -28,8 +28,12 @@ add_executable(WwiseCmake
         src/gui/widgets/menus/main_menu_about.h
         src/gui/widgets/menus/main_menu_file.cpp
         src/gui/widgets/menus/main_menu_file.h
+        src/gui/widgets/menus/main_menu_options.cpp
+        src/gui/widgets/menus/main_menu_options.h
         src/gui/widgets/menus/main_menu_settings.cpp
         src/gui/widgets/menus/main_menu_settings.h
+        src/gui/widgets/overlays/audio_info_overlay.cpp
+        src/gui/widgets/overlays/audio_info_overlay.h
         src/gui/widgets/sub_menus/settings_submenu_volume.cpp
         src/gui/widgets/sub_menus/settings_submenu_volume.h
         src/gui/widgets/widget.h
