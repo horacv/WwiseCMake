@@ -514,10 +514,16 @@ bool AudioEngine::GetDefaultAudioDeviceName(std::wstring& outCurrentDeviceName)
     AK::SoundEngine::GetDeviceList(deviceId, currentNumberOfDevices, descriptions);
     for (size_t i = 0; i < currentNumberOfDevices; ++i)
     {
-        const AkDeviceDescription currentDevice = descriptions[i];
+        const AkDeviceDescription& currentDevice = descriptions[i];
         if (currentDevice.isDefaultDevice)
         {
+            // TODO: These character encoding conversions might not be the most robust. Please fix in the future!
+#ifdef AK_OS_WCHAR // Windows only!
             outCurrentDeviceName.assign(currentDevice.deviceName);
+#else
+            std::string temp(currentDevice.deviceName);
+            outCurrentDeviceName.assign(temp.begin(), temp.end());
+#endif
             return true;
         }
     }
