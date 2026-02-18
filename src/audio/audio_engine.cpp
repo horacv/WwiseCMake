@@ -450,3 +450,67 @@ bool AudioEngine::GetParameter(const std::string& parameterName, float& outValue
     outParameterType = type;
     return result == AK_Success;
 }
+
+// Sound Engine Advanced
+
+uint32_t AudioEngine::GetDeviceSampleRate()
+{
+    if (!IsInitialized()) { return 0; }
+    return AK::SoundEngine::GetSampleRate();
+}
+
+bool AudioEngine::GetDeviceChannelConfigType(std::string& outChannelConfigType, uint32_t& outNumberOfChannels)
+{
+    if (!IsInitialized()) { return false; }
+    outChannelConfigType = "None";
+    outNumberOfChannels = 0;
+
+    const std::unordered_map<AkUInt32, std::string> channelConfigurations {
+        {AK_ChannelConfigType_Anonymous, "Anonymous"},
+        {AK_ChannelConfigType_Standard, "Standard"},
+        {AK_ChannelConfigType_Ambisonic, "Ambisonic"},
+        {AK_ChannelConfigType_Objects, "Objects"}
+    };
+
+    AkChannelConfig channelConfig;
+    Ak3DAudioSinkCapabilities audio3dCapabilities;
+
+    if (const AkOutputDeviceID deviceId = AK::SoundEngine::GetOutputID(AK_INVALID_UNIQUE_ID, 0);
+        AK::SoundEngine::GetOutputDeviceConfiguration(deviceId, channelConfig, audio3dCapabilities) != AK_Success)
+    {
+        return false;
+    }
+
+    outChannelConfigType = channelConfigurations.find(channelConfig.eConfigType)->second;
+    outNumberOfChannels = channelConfig.uNumChannels;
+    return true;
+}
+
+bool AudioEngine::GetDefaultAudioDeviceName(std::wstring& outCurrentDeviceName)
+{
+    if (!IsInitialized()) { return false; }
+
+    constexpr AkUInt32 MaxNumberOfDevices = 50;
+
+    const AkOutputDeviceID deviceId = AK::SoundEngine::GetOutputID(AK_INVALID_UNIQUE_ID, 0);
+    AkUInt32 currentNumberOfDevices = MaxNumberOfDevices;
+    AkDeviceDescription descriptions[MaxNumberOfDevices] = {};
+
+    AK::SoundEngine::GetDeviceList(deviceId, currentNumberOfDevices, descriptions);
+    for (size_t i = 0; i < currentNumberOfDevices; ++i)
+    {
+        const AkDeviceDescription& currentDevice = descriptions[i];
+        if (currentDevice.isDefaultDevice)
+        {
+            // TODO: These character encoding conversions might not be the most robust. Please fix in the future!
+#ifdef AK_OS_WCHAR // Windows only!
+            outCurrentDeviceName.assign(currentDevice.deviceName);
+#else
+            std::string temp(currentDevice.deviceName);
+            outCurrentDeviceName.assign(temp.begin(), temp.end());
+#endif
+            return true;
+        }
+    }
+    return false;
+}
