@@ -8,12 +8,22 @@ class IPage : public std::enable_shared_from_this<IPage>
 public:
     IPage() = default;
     virtual ~IPage() = default;
-    virtual void Initialize() { bIsInitialized = true; }
-    virtual void Start() = 0;
+    virtual void Initialize()
+    {
+        bIsInitialized.store(true, std::memory_order_release);
+    }
+    virtual void Deinitialize()
+    {
+        bIsInitialized.store(false, std::memory_order_release);
+    }
+
+    virtual bool IsInitialized() const { return bIsInitialized; }
+
 
 protected:
-    bool bIsInitialized = false;
+    std::atomic<bool> bIsInitialized = false;
 
+    virtual void Start() = 0;
     virtual void RenderStage() = 0;
 };
 

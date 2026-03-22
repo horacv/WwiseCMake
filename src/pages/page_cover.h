@@ -10,7 +10,7 @@ class PageCover : public IPage
 public:
     PageCover();
     void Initialize() override;
-    void Start() override;
+    void Deinitialize() override;
     void RenderStage() override;
 
 private:
@@ -20,6 +20,11 @@ private:
     mutable std::mutex mMusicDataMutex;
     int mCurrentMusicBar;
     int mCurrentMusicBeat;
+
+    uint32_t musicInstanceID;
+    uint32_t audioObjectID;
+
+    void Start() override;
 
     /**
     * Audio Event Callback.

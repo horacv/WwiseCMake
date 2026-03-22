@@ -3,9 +3,12 @@
 
 struct QuitRequestedEvent {};
 struct ToggleAudioInfoOverlayEvent {};
+struct OpenPageEvent { std::string page_name = std::string(); };
 
 using InputEvent = std::variant<
 	QuitRequestedEvent,
-	ToggleAudioInfoOverlayEvent>;
+	ToggleAudioInfoOverlayEvent,
+	OpenPageEvent
+>;
 
 #endif

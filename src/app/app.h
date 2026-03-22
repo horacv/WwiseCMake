@@ -22,9 +22,10 @@ class Application
 		std::vector<InputEvent> inputEventsCurrent;
 
 		void Start() const;
-		void InitializeCurrentPage() const;
 		void ProcessEvents();
 		static void Update();
 		void Render();
+
+		void ChangePage(const std::string_view& pageName);
 };
 #endif

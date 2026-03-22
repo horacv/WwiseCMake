@@ -2,8 +2,11 @@
 #define PCH_H
 
 // C++ STD Library
+#include <atomic>
 #include <cassert>
+#include <filesystem>
 #include <format>
+#include <fstream>
 #include <functional>
 #include <iostream>
 #include <memory>

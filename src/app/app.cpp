@@ -5,9 +5,18 @@
 #include "media/media_framework.h"
 #include "media/media_framework_data.h"
 #include "pages/page_cover.h"
+#include "pages/page_external_sources.h"
 
 const MediaWindowSettings INIT_WINDOW_SETTINGS{"Wwise is Alive!", 1024, 768};
 constexpr SDL_Color BACKGROUND_COLOR{21, 21, 21, 255};
+
+namespace
+{
+	const std::unordered_map<std::string_view, std::function<std::unique_ptr<IPage>()>> pages = {
+		{"Cover", [](){ return std::make_unique<PageCover>(); }},
+		{"External Sources", [](){ return std::make_unique<PageExternalSources>(); }}
+	};
+}
 
 Application::Application()
 : mIsRunning(false)
@@ -56,14 +65,8 @@ bool Application::IsRunning() const
 void Application::Start() const
 {
 	MediaFramework::Start();
-	InitializeCurrentPage();
-	std::cout << "Application Started" << std::endl;
-}
-
-void Application::InitializeCurrentPage() const
-{
 	currentPage->Initialize();
-	currentPage->Start();
+	std::cout << "Application Started" << std::endl;
 }
 
 void Application::ProcessEvents()
@@ -72,6 +75,10 @@ void Application::ProcessEvents()
 	for (auto& inputEvent : inputEventsCurrent)
 	{
 		if (std::holds_alternative<QuitRequestedEvent>(inputEvent)) { mIsRunning = false; }
+		if (std::holds_alternative<OpenPageEvent>(inputEvent))
+		{
+			ChangePage(std::get<OpenPageEvent>(inputEvent).page_name);
+		}
 	}
 	inputEventsCurrent.clear();
 }
@@ -90,4 +97,23 @@ void Application::Render()
 	GUI::RenderStage(inputEventsCurrent);
 
 	MediaFramework::RenderPresent();
+}
+
+void Application::ChangePage(const std::string_view& pageName)
+{
+	if (const auto it = pages.find(pageName); it != pages.end())
+	{
+		std::shared_ptr<IPage> newPage = it->second();
+
+		if (currentPage)
+		{
+			currentPage->Deinitialize();
+		}
+
+		currentPage = std::move(newPage);
+		if (currentPage)
+		{
+			currentPage->Initialize();
+		}
+	}
 }

@@ -411,22 +411,45 @@ bool AudioEngine::AudioObjectSetPosition(const uint64_t audioObjectID, const Aud
 // Events
 
 uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const uint64_t audioObjectID,
-    const AudioCallbackType callbackType, const AudioCallbackFunc callback, void* callbackCookie)
+    const AudioCallbackType callbackType, const AudioCallbackFunc callback, void* callbackCookie,
+    const std::vector<AudioExternalSourceInfo>& ExternalSources)
 {
     const AkGameObjectID ID = audioObjectID <= 0 || audioObjectID == AK_INVALID_GAME_OBJECT ? Get().mDefaultAudioObject : audioObjectID;
 
     AudioPosition position;
     position.Set({0,0,0},{1,0,0},{0,1,0});
-    return PlayAudioEvent(eventName, position, ID, callbackType, callback, callbackCookie);
+    return PlayAudioEvent(eventName, position, ID, callbackType, callback, callbackCookie, ExternalSources);
 }
 
 uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const AudioPosition& position,
     const uint64_t audioObjectID, const AudioCallbackType callbackType,
-    const AudioCallbackFunc callback, void* callbackCookie)
+    const AudioCallbackFunc callback, void* callbackCookie, std::vector<AudioExternalSourceInfo> ExternalSources)
 {
     if (!IsInitialized()) { return 0; }
     AK::SoundEngine::SetPosition(audioObjectID, position);
-    return AK::SoundEngine::PostEvent(eventName.c_str(), audioObjectID, callbackType, callback, callbackCookie);
+
+    return AK::SoundEngine::PostEvent(eventName.c_str(), audioObjectID,
+        callbackType, callback, callbackCookie, ExternalSources.size(), ExternalSources.data());
+}
+void AudioEngine::StopPlayingAudioInstance(const uint32_t eventInstanceID, const int32_t transitionDurationMs, const AudioCurveInterpolation curve)
+{
+    if (!IsInitialized()) { return; }
+    if (eventInstanceID == AK_INVALID_PLAYING_ID) { return; }
+    AK::SoundEngine::ExecuteActionOnPlayingID(AK::SoundEngine::AkActionOnEventType_Stop, eventInstanceID, transitionDurationMs, curve);
+}
+
+void AudioEngine::CancelAllCallbacksForAudioInstance(const uint32_t eventInstanceID)
+{
+    if (!IsInitialized()) { return; }
+    if (eventInstanceID == AK_INVALID_PLAYING_ID) { return; }
+    AK::SoundEngine::CancelEventCallback(eventInstanceID);
+}
+
+void AudioEngine::CancelAllCallbacksForAudioObject(const int64_t audioObjectID)
+{
+    if (!IsInitialized()) { return; }
+    if (audioObjectID == AK_INVALID_AUDIO_OBJECT_ID) { return; }
+    AK::SoundEngine::CancelEventCallbackGameObject(audioObjectID);
 }
 
 // Parameters

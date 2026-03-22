@@ -30,6 +30,8 @@ add_executable(WwiseCmake
         src/gui/widgets/menus/main_menu_file.h
         src/gui/widgets/menus/main_menu_options.cpp
         src/gui/widgets/menus/main_menu_options.h
+        src/gui/widgets/menus/main_menu_pages.cpp
+        src/gui/widgets/menus/main_menu_pages.h
         src/gui/widgets/menus/main_menu_settings.cpp
         src/gui/widgets/menus/main_menu_settings.h
         src/gui/widgets/overlays/audio_info_overlay.cpp
@@ -44,6 +46,8 @@ add_executable(WwiseCmake
         src/pages/page.h
         src/pages/page_cover.cpp
         src/pages/page_cover.h
+        src/pages/page_external_sources.cpp
+        src/pages/page_external_sources.h
 
         src/main.cpp
         src/pch.h

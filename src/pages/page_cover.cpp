@@ -9,17 +9,32 @@ constexpr float fontPointSizeBeatCounter = 40;
 constexpr SDL_Color fontColor = { 255, 255, 255, 255 };
 
 PageCover::PageCover()
-: titleTextSurface(nullptr)
-, titleTextTexture(nullptr)
-, mCurrentMusicBar(0)
-, mCurrentMusicBeat(0)
+    : titleTextSurface(nullptr)
+    , titleTextTexture(nullptr)
+    , mCurrentMusicBar(0)
+    , mCurrentMusicBeat(0)
+    , musicInstanceID(0)
+    , audioObjectID(0)
 {}
 
 void PageCover::Initialize()
 {
     IPage::Initialize();
-    auto test = weak_from_this();
     MediaFramework::SubscribeToRenderStage(weak_from_this());
+
+    Start();
+}
+
+void PageCover::Deinitialize()
+{
+    IPage::Deinitialize();
+
+    AudioEngine::CancelAllCallbacksForAudioObject(audioObjectID);
+    AudioEngine::StopPlayingAudioInstance(musicInstanceID);
+    AudioEngine::AudioObjectUnregister(audioObjectID);
+
+    SDL_DestroyTexture(titleTextTexture);
+    SDL_DestroySurface(titleTextSurface);
 }
 
 void PageCover::Start()
@@ -33,9 +48,13 @@ void PageCover::Start()
 
     TTF_CloseFont(font);
 
-    AudioEngine::SoundbankLoad("Music.bnk"); // AUDIO ENGINE: LOAD MUSIC BANK
-    AudioEngine::PlayAudioEvent("MusicTest", AK_INVALID_AUDIO_OBJECT_ID,
-        AK_MusicSyncAll, MusicEventCallback, this); // AUDIO ENGINE: PLAY MUSIC EVENT
+    AudioEngine::SoundbankLoad("Music.bnk");
+
+    audioObjectID = AudioEngine::AudioObjectGetNewID();
+    AudioEngine::AudioObjectRegister(audioObjectID, "Cover Page Music Object");
+
+    musicInstanceID = AudioEngine::PlayAudioEvent("MusicTest", audioObjectID,
+        AK_MusicSyncAll, MusicEventCallback, this);
 }
 
 void PageCover::RenderStage()
@@ -45,6 +64,7 @@ void PageCover::RenderStage()
     const MediaWindowSettings& windowSettings = MediaFramework::GetCurrentWindowSettings();
 
     // Main Text
+
     auto textPositionX = static_cast<float>(windowSettings.width) * 0.5f - static_cast<float>(titleTextSurface->w) * 0.5f;
     auto textPositionY = static_cast<float>(windowSettings.height) * 0.5f - static_cast<float>(titleTextSurface->h) * 0.5f;
     auto textWidth = static_cast<float>(titleTextSurface->w);
@@ -83,7 +103,7 @@ void PageCover::MusicEventCallback(const AudioCallbackType type, AudioCallbackIn
     {
         const auto page = static_cast<PageCover*>(info->pCookie);
         const auto* musicInfo = static_cast<AkMusicSyncCallbackInfo*>(info);
-        if (page && musicInfo)
+        if (page && page->IsInitialized() && musicInfo)
         {
             const auto currentPositionMs = musicInfo->segmentInfo.iCurrentPosition + musicInfo->segmentInfo.iRemainingLookAheadTime;
             const auto barDurationMs = musicInfo->segmentInfo.fBarDuration * 1000;
@@ -96,9 +116,6 @@ void PageCover::MusicEventCallback(const AudioCallbackType type, AudioCallbackIn
             page->SetCurrentMusicBarAndBeat(currentBar, currentBeat);
         }
     }
-
-    // Add more callback types here
-    //...
 }
 
 void PageCover::SetCurrentMusicBarAndBeat(const int bar, const int beat)
