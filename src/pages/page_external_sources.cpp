@@ -115,6 +115,7 @@ void PageExternalSources::PlayExternalSource(const EventAndMediaInfo& eventAndMe
 
     std::vector<std::filesystem::path> mediaPaths;
     std::vector<std::wstring> mediaPathsWide;
+    std::vector<std::string> mediaPathsNarrow;
     std::vector<AudioExternalSourceInfo> media;
     std::vector<InMemoryAudioData> newInMemoryData;
 
@@ -126,18 +127,19 @@ void PageExternalSources::PlayExternalSource(const EventAndMediaInfo& eventAndMe
 
         if (bIsStreamed)
         {
-            mediaPaths.push_back(AudioEngine::GetExternalSourcesSubFolder().data() + mediaName);
+            mediaPaths.emplace_back(AudioEngine::GetExternalSourcesSubFolder().data() + mediaName);
             mediaPathsWide.push_back(mediaPaths.back().wstring());
+            mediaPathsNarrow.push_back(mediaPaths.back().string());
 
 #ifdef AK_OS_WCHAR // Windows only!
             newMedia.szFile = mediaPathsWide.back().data();
 #else
-            newMedia.szFile = mediaName.c_str();
+            newMedia.szFile = mediaPathsNarrow.back().data();
 #endif
         }
         else
         {
-            mediaPaths.push_back(AudioEngine::GetExternalSourcesBasePath().data() + mediaName);
+            mediaPaths.emplace_back(AudioEngine::GetExternalSourcesBasePath().data() + mediaName);
 
             InMemoryAudioData newInMemoryDataEntry;
             if (!LoadFile(mediaPaths.back(), newInMemoryDataEntry))

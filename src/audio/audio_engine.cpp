@@ -266,7 +266,13 @@ bool AudioEngine::Initialize()
     audioEngine.soundbankBasePath =  soundbankPath + "/" + AUDIO_PLATFORM + "/";
 
     std::filesystem::path soundbankPlatformPath = audioEngine.soundbankBasePath;
-    if (audioEngine.mLowLevelIO.SetBasePath(soundbankPlatformPath.wstring().data()) != AK_Success)
+
+#ifdef AK_OS_WCHAR // Windows only - Wide!
+    std::wstring path = soundbankPlatformPath.wstring();
+#else              // Rest OS - Narrow!
+    std::string path = soundbankPlatformPath.string();
+#endif
+    if (audioEngine.mLowLevelIO.SetBasePath(path.data()) != AK_Success)
     {
         assert(!"Failed setting the Soundbanks base path");
     }
