@@ -19,6 +19,7 @@ public:
 
     virtual bool IsInitialized() const { return bIsInitialized; }
 
+    virtual bool CanClose() { return true; }
 
 protected:
     std::atomic<bool> bIsInitialized = false;

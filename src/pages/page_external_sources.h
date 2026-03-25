@@ -5,13 +5,22 @@
 
 #include "audio/audio_engine.h"
 
-struct ExternalSourceInfo
+struct MediaInfo
 {
-    std::string name;
-    std::string description;
+    std::string mediaName;
+    std::string ExtSourceCookieName;
     AkCodecID codecID;
     bool bIsStreamed {true};
 };
+
+struct EventAndMediaInfo
+{
+    std::string eventName;
+    std::string uiLabel;
+    std::vector<MediaInfo> mediaInfo;
+};
+
+using InMemoryAudioData = std::vector<std::byte>;
 
 class PageExternalSources : public IPage
 {
@@ -20,23 +29,30 @@ public:
     void Initialize() override;
     void Deinitialize() override;
     void RenderStage() override;
+    bool CanClose() override;
 
 private:
     SDL_Surface* titleTextSurface;
     SDL_Texture* titleTextTexture;
 
     uint64_t audioObjectID;
-    ExternalSourceInfo selectedExternalSourceData;
+    uint32_t currentAudioInstance;
+    EventAndMediaInfo selectedEventAndMediaInfo;
 
-    std::vector<std::byte> currentAudioInMemory;
+    std::mutex audioInMemoryMutex;
+    std::multimap<uint32_t, InMemoryAudioData> currentAudioInMemory;
+    std::atomic <bool> bIsPlaying {false};
 
     void Start() override;
 
     void StageExternalSourceList();
-    void PlayExternalSource(const ExternalSourceInfo& info);
+    void PlayExternalSource(const EventAndMediaInfo& eventAndMedia);
     void StopCurrentPlayback();
+    void ClearUnusedMemory(uint32_t audioInstanceID);
 
     bool LoadFile(const std::filesystem::path& path, std::vector<std::byte>& outData);
+
+    static void ExternalSourceEventCallback(AudioCallbackType type, AudioCallbackInfo* info);
 };
 
 

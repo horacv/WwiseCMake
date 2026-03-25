@@ -21,6 +21,11 @@
 
 #include "audio_config.h"
 
+namespace
+{
+    constexpr std::string_view configFilePath = "config/audio_engine.ini";
+}
+
 std::unique_ptr<AudioEngine> AudioEngine::sInstance = nullptr;
 uint64_t AudioEngine::sNextAudioObjectID = 0;
 
@@ -221,7 +226,7 @@ bool AudioEngine::Initialize()
     AudioEngine& audioEngine = Get();
 
     AudioConfig config;
-    if (!config.LoadConfigFile("config/audio_engine.ini"))
+    if (!config.LoadConfigFile(configFilePath.data()))
     {
         assert(!"Could not load configuration file");
     }
@@ -253,10 +258,22 @@ bool AudioEngine::Initialize()
         assert(!"Could not initialize the Low-Level I/O system");
     }
 
-    if (audioEngine.mLowLevelIO.SetBasePath(AKTEXT("assets/soundbanks/" AUDIO_PLATFORM "/")) != AK_Success)
+    std::string soundbankPath = config.GetString("Paths", "szSoundbankBasePath", "");
+    if (soundbankPath.empty())
+    {
+        assert(!"Sound Bank Base Path is empty");
+    }
+    audioEngine.soundbankBasePath =  soundbankPath + "/" + AUDIO_PLATFORM + "/";
+
+    std::filesystem::path soundbankPlatformPath = audioEngine.soundbankBasePath;
+    if (audioEngine.mLowLevelIO.SetBasePath(soundbankPlatformPath.wstring().data()) != AK_Success)
     {
         assert(!"Failed setting the Soundbanks base path");
     }
+
+    std::string externalSourcesFolderName = config.GetString("Paths", "szExternalSourcesFolderName", "");
+    audioEngine.externalSourcesSubFolder = externalSourcesFolderName + "/";
+    audioEngine.externalSourcesBasePath = audioEngine.soundbankBasePath + audioEngine.externalSourcesSubFolder;
 
     AkInitSettings initSettings{};
     AK::SoundEngine::GetDefaultInitSettings(initSettings);
@@ -335,6 +352,24 @@ void AudioEngine::Terminate()
     AK::MemoryMgr::Term();
 
     std::cout << "Audio Engine Terminated" << std::endl;
+}
+
+std::string_view AudioEngine::GetSoundBanksBasePath()
+{
+    if (!IsInitialized()) { return std::string_view(); }
+    return Get().soundbankBasePath;
+}
+
+std::string_view AudioEngine::GetExternalSourcesSubFolder()
+{
+    if (!IsInitialized()) { return std::string_view(); }
+    return Get().externalSourcesSubFolder;
+}
+
+std::string_view AudioEngine::GetExternalSourcesBasePath()
+{
+    if (!IsInitialized()) { return std::string_view(); }
+    return Get().externalSourcesBasePath;
 }
 
 void AudioEngine::Update()
@@ -487,6 +522,12 @@ bool AudioEngine::GetParameter(const std::string& parameterName, float& outValue
 
     outParameterType = type;
     return result == AK_Success;
+}
+
+uint32_t AudioEngine::GetAudioIDFromName(const std::string &name)
+{
+    if (!IsInitialized()) { return 0; }
+    return AK::SoundEngine::GetIDFromString(name.c_str());
 }
 
 // Sound Engine Advanced

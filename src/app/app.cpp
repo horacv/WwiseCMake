@@ -103,7 +103,7 @@ void Application::ChangePage(const std::string_view& pageName)
 {
 	if (const auto it = pages.find(pageName); it != pages.end())
 	{
-		std::shared_ptr<IPage> newPage = it->second();
+		std::shared_ptr newPage = it->second();
 
 		if (currentPage)
 		{

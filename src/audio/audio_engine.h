@@ -31,6 +31,10 @@ class AudioEngine
 		static bool Initialize();
 		static void Terminate();
 
+		static std::string_view GetSoundBanksBasePath();
+		static std::string_view GetExternalSourcesSubFolder();
+		static std::string_view GetExternalSourcesBasePath();
+
 		// Call this every frame on the program's update loop
 		static void Update();
 		static bool IsInitialized();
@@ -91,6 +95,7 @@ class AudioEngine
 
 		// Sound Engine Advanced
 
+		static uint32_t GetAudioIDFromName(const std::string& name);
 		static uint32_t GetDeviceSampleRate();
 		static bool GetDeviceChannelConfigType(std::string& outChannelConfigType, uint32_t& outNumberOfChannels);
 		static bool GetDefaultAudioDeviceName(std::wstring& outCurrentDeviceName);
@@ -101,6 +106,10 @@ class AudioEngine
 		AkGameObjectID mDefaultAudioObject;
 		AkGameObjectID mDefaultAudioListener;
 		CAkFilePackageLowLevelIODeferred mLowLevelIO;
+
+		std::string soundbankBasePath;
+		std::string externalSourcesSubFolder;
+		std::string externalSourcesBasePath;
 
 		AudioEngine();
 };

@@ -1,7 +1,5 @@
 #include "page_external_sources.h"
 
-#include <ranges>
-
 #include "media/media_framework.h"
 
 #define FONT_PATH "assets/fonts/arial.ttf"
@@ -12,12 +10,37 @@ namespace
     constexpr float fontPointSizeBeatCounter = 40;
     constexpr SDL_Color fontColor = { 255, 255, 255, 255 };
 
-    std::vector<ExternalSourceInfo> externalSourcesInfo = {
-        {"assets/external_sources/MyExternalSource1.wem","MyExternalSource1.wem - From Memory - CodecID: wem opus", AKCODECID_AKOPUS_WEM, false},
-        {"MyExternalSource2.wem","MyExternalSource2.wem - Streamed  - CodecID: Vorbis", AKCODECID_VORBIS},
-        {"MyExternalSource3.wav","MyExternalSource3.wav - Streamed - CodecID: ADPCM", AKCODECID_ADPCM},
-        {"MyExternalSource4.wav","MyExternalSource4.wav - Streamed - CodecID: PCM Wav", AKCODECID_PCM}
+    const std::string& externalSourceSingle = "ExternalSource_Single";
+    const std::string& externalSourceMulti = "ExternalSource_Multi";
+
+    const std::string& mediaName_1 = "1_FromMemory_WemOpus.wem";
+    const std::string& mediaName_2 = "2_Streamed_Vorbis.wem";
+    const std::string& mediaName_3 = "3_FromMemory_ADPCM.wem";
+    const std::string& mediaName_4 = "4_Streamed_PCM.wem";
+    const std::string& mediaName_5_1 = "5.1_Streamed_Sequence_WemOpus.wem";
+    const std::string& mediaName_5_2 = "5.2_Streamed_Sequence_WemOpus.wem";
+    const std::string& mediaName_5_3 = "5.3_Streamed_Sequence_WemOpus.wem";
+
+    std::vector<EventAndMediaInfo> eventAndMediaInfo = {
+        {externalSourceSingle, mediaName_1 + " - Single - Codec: Wem Opus",
+            {{mediaName_1, externalSourceSingle, AKCODECID_AKOPUS_WEM, false}}},
+
+        {externalSourceSingle, mediaName_2 + " - Single - Codec: Vorbis",
+            {{mediaName_2, externalSourceSingle, AKCODECID_VORBIS, true}}},
+
+        {externalSourceSingle, mediaName_3 + " - Single - Codec: ADPCM",
+            {{mediaName_3, externalSourceSingle, AKCODECID_ADPCM, false}}},
+
+        {externalSourceSingle, mediaName_4 + " - Single - Codec: PCM",
+            {{mediaName_4, externalSourceSingle, AKCODECID_PCM, true}}},
+
+        {externalSourceMulti, "5.[1-3]_Streamed_Sequence_WemOpus.wem - Sequence Container (Continuous) - Codec: Wem Opus",
+            {
+                {mediaName_5_1, externalSourceMulti + "_00", AKCODECID_AKOPUS_WEM, true},
+                {mediaName_5_2, externalSourceMulti + "_01", AKCODECID_AKOPUS_WEM, true},
+                {mediaName_5_3, externalSourceMulti + "_02", AKCODECID_AKOPUS_WEM, true}}},
     };
+
 }
 
 
@@ -25,7 +48,8 @@ PageExternalSources::PageExternalSources()
     : titleTextSurface(nullptr)
     , titleTextTexture(nullptr)
     , audioObjectID(0)
-    , selectedExternalSourceData(externalSourcesInfo[0])
+    , currentAudioInstance(0)
+    , selectedEventAndMediaInfo(eventAndMediaInfo[0])
 {}
 
 void PageExternalSources::Initialize()
@@ -33,14 +57,27 @@ void PageExternalSources::Initialize()
     IPage::Initialize();
     MediaFramework::SubscribeToRenderStage(weak_from_this());
 
+    AudioEngine::SoundbankLoad("ExternalSources.bnk");
     audioObjectID = AudioEngine::AudioObjectGetNewID();
     AudioEngine::AudioObjectRegister(audioObjectID);
 
     Start();
 }
+
 void PageExternalSources::Deinitialize()
 {
     IPage::Deinitialize();
+
+    if (audioObjectID != AK_INVALID_AUDIO_OBJECT_ID)
+    {
+        if (currentAudioInstance != AK_INVALID_UNIQUE_ID)
+        {
+            StopCurrentPlayback();
+        }
+
+        //AudioEngine::CancelAllCallbacksForAudioObject(audioObjectID);
+        AudioEngine::AudioObjectUnregister(audioObjectID);
+    }
 
     // SDL_DestroyTexture(titleTextTexture);
     // SDL_DestroySurface(titleTextSurface);
@@ -61,42 +98,86 @@ void PageExternalSources::Start()
 }
 void PageExternalSources::StageExternalSourceList()
 {
-    for (const auto& externalSource : externalSourcesInfo)
+    for (const auto& info : eventAndMediaInfo)
     {
-        const bool bSelected = selectedExternalSourceData.name == externalSource.name;
-        if (ImGui::Selectable(externalSource.description.c_str(), bSelected,
-            bSelected ? ImGuiSelectableFlags_Highlight: ImGuiSelectableFlags_None))
+        const bool bSelected = selectedEventAndMediaInfo.uiLabel == info.uiLabel;
+        ImGuiSelectableFlags_ flags =  bSelected ? ImGuiSelectableFlags_Highlight: ImGuiSelectableFlags_None;
+        if (ImGui::Selectable(info.uiLabel.c_str(), bSelected, flags))
         {
-            selectedExternalSourceData = externalSource;
+            selectedEventAndMediaInfo = info;
         }
     }
 }
 
-void PageExternalSources::PlayExternalSource(const ExternalSourceInfo& info)
+void PageExternalSources::PlayExternalSource(const EventAndMediaInfo& eventAndMedia)
 {
-    AudioExternalSourceInfo _info;
-    _info.idCodec = info.codecID;
+    if (bIsPlaying.load()) { return; }
 
-    if (info.bIsStreamed)
+    std::vector<std::filesystem::path> mediaPaths;
+    std::vector<std::wstring> mediaPathsWide;
+    std::vector<AudioExternalSourceInfo> media;
+    std::vector<InMemoryAudioData> newInMemoryData;
+
+    for (const auto& [mediaName, ExtSourceCookieName, codecID, bIsStreamed] : eventAndMedia.mediaInfo)
     {
-        std::string name = info.name;
-        _info.szFile = name.data();
-    }
-    else
-    {
-        if (!LoadFile(info.name, currentAudioInMemory)) { return; }
-        _info.pInMemory = currentAudioInMemory.data();
-        _info.uiMemorySize = currentAudioInMemory.size();
+        AudioExternalSourceInfo newMedia;
+        newMedia.idCodec = codecID;
+        newMedia.iExternalSrcCookie = AudioEngine::GetAudioIDFromName(ExtSourceCookieName);
+
+        if (bIsStreamed)
+        {
+            mediaPaths.push_back(AudioEngine::GetExternalSourcesSubFolder().data() + mediaName);
+            mediaPathsWide.push_back(mediaPaths.back().wstring());
+
+#ifdef AK_OS_WCHAR // Windows only!
+            newMedia.szFile = mediaPathsWide.back().data();
+#else
+            newMedia.szFile = mediaName.c_str();
+#endif
+        }
+        else
+        {
+            mediaPaths.push_back(AudioEngine::GetExternalSourcesBasePath().data() + mediaName);
+
+            InMemoryAudioData newInMemoryDataEntry;
+            if (!LoadFile(mediaPaths.back(), newInMemoryDataEntry))
+            {
+                std::cout << std::format("Failed to load file: {} in memory", mediaPaths.back().string())  << std::endl;
+                return;
+            }
+
+            newInMemoryData.push_back(std::move(newInMemoryDataEntry));
+            newMedia.pInMemory = newInMemoryData.back().data();
+            newMedia.uiMemorySize = newInMemoryData.back().size();
+        }
+
+        media.push_back(newMedia);
     }
 
-    const std::vector sources = { _info };
-    AudioEngine::PlayAudioEvent("EventName", audioObjectID, AK_EndOfEvent, nullptr, this, sources);
-    std::cout << info.name << std::endl;
+    currentAudioInstance = AudioEngine::PlayAudioEvent(eventAndMedia.eventName, audioObjectID,
+        AK_EndOfEvent, &ExternalSourceEventCallback, this, media);
+
+    std::lock_guard lock(audioInMemoryMutex);
+    for (auto& newEntry: newInMemoryData)
+    {
+        currentAudioInMemory.emplace(currentAudioInstance, std::move(newEntry));
+    }
+
+    bIsPlaying.store(true);
 }
 
 void PageExternalSources::StopCurrentPlayback()
 {
-    std::cout << "STOP"  << std::endl;
+    if (currentAudioInstance == AK_INVALID_UNIQUE_ID) { return; }
+    AudioEngine::StopPlayingAudioInstance(currentAudioInstance);
+    currentAudioInstance = AK_INVALID_UNIQUE_ID;
+}
+
+void PageExternalSources::ClearUnusedMemory(uint32_t audioInstanceID)
+{
+    std::lock_guard lock(audioInMemoryMutex);
+    currentAudioInMemory.erase(audioInstanceID);
+    bIsPlaying.store(false);
 }
 
 bool PageExternalSources::LoadFile(const std::filesystem::path& path, std::vector<std::byte>& outData)
@@ -109,7 +190,7 @@ bool PageExternalSources::LoadFile(const std::filesystem::path& path, std::vecto
     outData.resize(std::filesystem::file_size(path));
     file.read(reinterpret_cast<char*>(outData.data()), static_cast<std::streamsize>(outData.size()));
 
-    return outData.size() > 0;
+    return !outData.empty();
 }
 
 void PageExternalSources::RenderStage()
@@ -133,7 +214,7 @@ void PageExternalSources::RenderStage()
     };
 
     ImGui::SetNextWindowPos(window_pos, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-    ImGui::SetNextWindowSize(ImVec2(640,480));
+    ImGui::SetNextWindowSize(ImVec2(880, 480));
     if (ImGui::Begin("External Sources", nullptr, window_flags))
     {
         if (ImGui::BeginListBox("##External Sources Inner Box", ImVec2(-FLT_MIN, 8 * ImGui::GetTextLineHeightWithSpacing())))
@@ -149,7 +230,7 @@ void PageExternalSources::RenderStage()
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor::HSV(0.26f, 0.7f, 0.7f)));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor::HSV(0.26f, 0.8f, 0.8f)));
         ImGui::PushStyleVarX(ImGuiStyleVar_ButtonTextAlign, 0.5f);
-        if (ImGui::Button("PLAY")) { PlayExternalSource(selectedExternalSourceData); }
+        if (ImGui::Button("PLAY")) { PlayExternalSource(selectedEventAndMediaInfo); }
         ImGui::PopStyleColor(3);
         ImGui::PopStyleVar(1);
         ImGui::PopID();
@@ -168,6 +249,24 @@ void PageExternalSources::RenderStage()
         ImGui::PopID();
     }
     ImGui::End();
+}
+
+bool PageExternalSources::CanClose()
+{
+    return !bIsPlaying.load();
+}
+
+void PageExternalSources::ExternalSourceEventCallback(AudioCallbackType type, AudioCallbackInfo* info)
+{
+    if (!info) { return; }
+    const auto page = static_cast<PageExternalSources*>(info->pCookie);
+    const auto eventCallbackInfo = static_cast<AkEventCallbackInfo*>(info);
+    if (!(page && eventCallbackInfo)) { return; }
+
+    if (type == AK_EndOfEvent)
+    {
+        page->ClearUnusedMemory(eventCallbackInfo->playingID);
+    }
 }
 
 #undef FONT_PATH
