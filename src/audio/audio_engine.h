@@ -77,7 +77,7 @@ class AudioEngine
 			int32_t transitionDurationMs = 0, AudioCurveInterpolation curve = AkCurveInterpolation_Linear);
 
 		static void CancelAllCallbacksForAudioInstance(uint32_t eventInstanceID);
-		static void CancelAllCallbacksForAudioObject(int64_t audioObjectID);
+		static void CancelAllCallbacksForAudioObject(uint64_t audioObjectID);
 
 		// Parameters
 

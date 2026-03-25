@@ -29,29 +29,25 @@ public:
     void Initialize() override;
     void Deinitialize() override;
     void RenderStage() override;
-    bool CanClose() override;
 
 private:
     SDL_Surface* titleTextSurface;
     SDL_Texture* titleTextTexture;
 
     uint64_t audioObjectID;
-    uint32_t currentAudioInstance;
+    uint32_t currentAudioPlayingID;
     EventAndMediaInfo selectedEventAndMediaInfo;
 
     std::mutex audioInMemoryMutex;
     std::multimap<uint32_t, InMemoryAudioData> currentAudioInMemory;
-    std::atomic <bool> bIsPlaying {false};
 
     void Start() override;
 
     void StageExternalSourceList();
     void PlayExternalSource(const EventAndMediaInfo& eventAndMedia);
-    void StopCurrentPlayback();
-    void ClearUnusedMemory(uint32_t audioInstanceID);
+    void HandleClearUnusedResources(uint32_t audioInstanceID);
 
-    bool LoadFile(const std::filesystem::path& path, std::vector<std::byte>& outData);
-
+    static bool LoadFile(const std::filesystem::path& path, std::vector<std::byte>& outData);
     static void ExternalSourceEventCallback(AudioCallbackType type, AudioCallbackInfo* info);
 };
 

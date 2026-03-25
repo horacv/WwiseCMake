@@ -22,7 +22,7 @@ private:
     int mCurrentMusicBeat;
 
     uint32_t musicInstanceID;
-    uint32_t audioObjectID;
+    uint64_t audioObjectID;
 
     void Start() override;
 

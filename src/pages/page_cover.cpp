@@ -4,9 +4,21 @@
 
 #define FONT_PATH "assets/fonts/arial.ttf"
 
-constexpr float fontPointSizeTitle = 96;
-constexpr float fontPointSizeBeatCounter = 40;
-constexpr SDL_Color fontColor = { 255, 255, 255, 255 };
+namespace
+{
+    // UI
+    constexpr float fontPointSizeTitle = 96;
+    constexpr float fontPointSizeBeatCounter = 40;
+    constexpr SDL_Color fontColor = { 255, 255, 255, 255 };
+    const std::string& title = "Wwise is Alive!";
+
+    // AUDIO
+    const std::string& soundbankName = "Music.bnk";
+    const std::string& audioObjectName = "Cover Page Music Object";
+    const std::string& audioEventName = "MusicTest";
+
+}
+
 
 PageCover::PageCover()
     : titleTextSurface(nullptr)
@@ -28,33 +40,39 @@ void PageCover::Initialize()
 void PageCover::Deinitialize()
 {
     IPage::Deinitialize();
+    MediaFramework::UnsubscribeFromRenderStage(weak_from_this());
 
-    AudioEngine::CancelAllCallbacksForAudioObject(audioObjectID);
-    AudioEngine::StopPlayingAudioInstance(musicInstanceID);
-    AudioEngine::AudioObjectUnregister(audioObjectID);
+    if (audioObjectID != AK_INVALID_AUDIO_OBJECT_ID)
+    {
+        AudioEngine::CancelAllCallbacksForAudioObject(audioObjectID);
+        AudioEngine::StopPlayingAudioInstance(musicInstanceID);
+        AudioEngine::AudioObjectUnregister(audioObjectID);
+        AudioEngine::SoundbankUnload(soundbankName);
+    }
 
-    SDL_DestroyTexture(titleTextTexture);
-    SDL_DestroySurface(titleTextSurface);
+    bCanDestroy.store(true, std::memory_order_release);
+
+    if (titleTextTexture) { SDL_DestroyTexture(titleTextTexture); }
+    if (titleTextSurface) { SDL_DestroySurface(titleTextSurface); }
 }
 
 void PageCover::Start()
 {
-    SDL_Renderer* renderer;
-    MediaFramework::GetRenderer(renderer);
+    if (SDL_Renderer* renderer; MediaFramework::GetRenderer(renderer))
+    {
+        TTF_Font* font = TTF_OpenFont(FONT_PATH, fontPointSizeTitle);
+        titleTextSurface = TTF_RenderText_Solid(font, title.c_str(), 0, fontColor);
+        titleTextTexture = SDL_CreateTextureFromSurface(renderer, titleTextSurface);
+        TTF_CloseFont(font);
+    }
 
-    TTF_Font* font = TTF_OpenFont(FONT_PATH, fontPointSizeTitle);
-    titleTextSurface = TTF_RenderText_Solid(font, "Wwise is Alive!", 0, fontColor);
-    titleTextTexture = SDL_CreateTextureFromSurface(renderer, titleTextSurface);
-
-    TTF_CloseFont(font);
-
-    AudioEngine::SoundbankLoad("Music.bnk");
-
-    audioObjectID = AudioEngine::AudioObjectGetNewID();
-    AudioEngine::AudioObjectRegister(audioObjectID, "Cover Page Music Object");
-
-    musicInstanceID = AudioEngine::PlayAudioEvent("MusicTest", audioObjectID,
-        AK_MusicSyncAll, MusicEventCallback, this);
+    if (AudioEngine::SoundbankLoad(soundbankName))
+    {
+        audioObjectID = AudioEngine::AudioObjectGetNewID();
+        AudioEngine::AudioObjectRegister(audioObjectID, audioObjectName);
+        musicInstanceID = AudioEngine::PlayAudioEvent(audioEventName, audioObjectID,
+            AK_MusicSyncAll, MusicEventCallback, this);
+    }
 }
 
 void PageCover::RenderStage()
@@ -87,7 +105,7 @@ void PageCover::RenderStage()
     textRectangle = {textPositionX, textPositionY, textWidth, textHeight};
     SDL_RenderTexture(renderer, musicInfoTextTexture, nullptr, &textRectangle);
 
-    //Render Cleanup
+    // Music Info Text: Render Cleanup
 
     SDL_DestroyTexture(musicInfoTextTexture);
     SDL_DestroySurface(musicInfoTextSurface);

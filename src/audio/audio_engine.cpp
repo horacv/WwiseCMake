@@ -486,7 +486,7 @@ void AudioEngine::CancelAllCallbacksForAudioInstance(const uint32_t eventInstanc
     AK::SoundEngine::CancelEventCallback(eventInstanceID);
 }
 
-void AudioEngine::CancelAllCallbacksForAudioObject(const int64_t audioObjectID)
+void AudioEngine::CancelAllCallbacksForAudioObject(const uint64_t audioObjectID)
 {
     if (!IsInitialized()) { return; }
     if (audioObjectID == AK_INVALID_AUDIO_OBJECT_ID) { return; }
