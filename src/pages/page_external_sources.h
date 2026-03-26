@@ -40,11 +40,14 @@ private:
 
     std::mutex audioInMemoryMutex;
     std::multimap<uint32_t, InMemoryAudioData> currentAudioInMemory;
+    std::multimap<uint32_t, std::string> currentPlayingMedia;
+
+    bool bReverbEnabled;
 
     void Start() override;
 
     void StageExternalSourceList();
-    void PlayExternalSource(const EventAndMediaInfo& eventAndMedia);
+    void PlayExternalSources(const EventAndMediaInfo& eventAndMediaInfo);
     void HandleClearUnusedResources(uint32_t audioInstanceID);
 
     static bool LoadFile(const std::filesystem::path& path, std::vector<std::byte>& outData);
