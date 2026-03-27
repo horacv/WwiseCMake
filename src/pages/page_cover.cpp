@@ -4,38 +4,75 @@
 
 #define FONT_PATH "assets/fonts/arial.ttf"
 
-constexpr float fontPointSizeTitle = 96;
-constexpr float fontPointSizeBeatCounter = 40;
-constexpr SDL_Color fontColor = { 255, 255, 255, 255 };
+namespace
+{
+    // UI
+    constexpr float fontPointSizeTitle = 96;
+    constexpr float fontPointSizeBeatCounter = 40;
+    constexpr SDL_Color fontColor = { 255, 255, 255, 255 };
+    const std::string& title = "Wwise is Alive!";
+
+    // AUDIO
+    const std::string& soundbankName = "Music.bnk";
+    const std::string& audioObjectName = "Cover Page Music Object";
+    const std::string& audioEventName = "MusicTest";
+
+}
+
 
 PageCover::PageCover()
-: titleTextSurface(nullptr)
-, titleTextTexture(nullptr)
-, mCurrentMusicBar(0)
-, mCurrentMusicBeat(0)
+    : titleTextSurface(nullptr)
+    , titleTextTexture(nullptr)
+    , mCurrentMusicBar(0)
+    , mCurrentMusicBeat(0)
+    , musicInstanceID(0)
+    , audioObjectID(0)
 {}
 
 void PageCover::Initialize()
 {
     IPage::Initialize();
-    auto test = weak_from_this();
     MediaFramework::SubscribeToRenderStage(weak_from_this());
+
+    Start();
+}
+
+void PageCover::Deinitialize()
+{
+    IPage::Deinitialize();
+    MediaFramework::UnsubscribeFromRenderStage(weak_from_this());
+
+    if (audioObjectID != AK_INVALID_AUDIO_OBJECT_ID)
+    {
+        AudioEngine::CancelAllCallbacksForAudioObject(audioObjectID);
+        AudioEngine::StopPlayingAudioInstance(musicInstanceID);
+        AudioEngine::AudioObjectUnregister(audioObjectID);
+        AudioEngine::SoundbankUnload(soundbankName);
+    }
+
+    bCanDestroy.store(true, std::memory_order_release);
+
+    if (titleTextTexture) { SDL_DestroyTexture(titleTextTexture); }
+    if (titleTextSurface) { SDL_DestroySurface(titleTextSurface); }
 }
 
 void PageCover::Start()
 {
-    SDL_Renderer* renderer;
-    MediaFramework::GetRenderer(renderer);
+    if (SDL_Renderer* renderer; MediaFramework::GetRenderer(renderer))
+    {
+        TTF_Font* font = TTF_OpenFont(FONT_PATH, fontPointSizeTitle);
+        titleTextSurface = TTF_RenderText_Solid(font, title.c_str(), 0, fontColor);
+        titleTextTexture = SDL_CreateTextureFromSurface(renderer, titleTextSurface);
+        TTF_CloseFont(font);
+    }
 
-    TTF_Font* font = TTF_OpenFont(FONT_PATH, fontPointSizeTitle);
-    titleTextSurface = TTF_RenderText_Solid(font, "Wwise is Alive!", 0, fontColor);
-    titleTextTexture = SDL_CreateTextureFromSurface(renderer, titleTextSurface);
-
-    TTF_CloseFont(font);
-
-    AudioEngine::SoundbankLoad("Music.bnk"); // AUDIO ENGINE: LOAD MUSIC BANK
-    AudioEngine::PlayAudioEvent("MusicTest", AK_INVALID_AUDIO_OBJECT_ID,
-        AK_MusicSyncAll, MusicEventCallback, this); // AUDIO ENGINE: PLAY MUSIC EVENT
+    if (AudioEngine::SoundbankLoad(soundbankName))
+    {
+        audioObjectID = AudioEngine::AudioObjectGetNewID();
+        AudioEngine::AudioObjectRegister(audioObjectID, audioObjectName);
+        musicInstanceID = AudioEngine::PlayAudioEvent(audioEventName, audioObjectID,
+            AK_MusicSyncAll, MusicEventCallback, this);
+    }
 }
 
 void PageCover::RenderStage()
@@ -45,6 +82,7 @@ void PageCover::RenderStage()
     const MediaWindowSettings& windowSettings = MediaFramework::GetCurrentWindowSettings();
 
     // Main Text
+
     auto textPositionX = static_cast<float>(windowSettings.width) * 0.5f - static_cast<float>(titleTextSurface->w) * 0.5f;
     auto textPositionY = static_cast<float>(windowSettings.height) * 0.5f - static_cast<float>(titleTextSurface->h) * 0.5f;
     auto textWidth = static_cast<float>(titleTextSurface->w);
@@ -67,7 +105,7 @@ void PageCover::RenderStage()
     textRectangle = {textPositionX, textPositionY, textWidth, textHeight};
     SDL_RenderTexture(renderer, musicInfoTextTexture, nullptr, &textRectangle);
 
-    //Render Cleanup
+    // Music Info Text: Render Cleanup
 
     SDL_DestroyTexture(musicInfoTextTexture);
     SDL_DestroySurface(musicInfoTextSurface);
@@ -96,9 +134,6 @@ void PageCover::MusicEventCallback(const AudioCallbackType type, AudioEventCallb
             page->SetCurrentMusicBarAndBeat(currentBar, currentBeat);
         }
     }
-
-    // Add more callback types here
-    //...
 }
 
 void PageCover::SetCurrentMusicBarAndBeat(const int bar, const int beat)

@@ -131,6 +131,15 @@ void MediaFramework::SubscribeToRenderStage(const std::weak_ptr<IPage>& renderea
     instance.mRenderablePages.insert(rendereable);
 }
 
+void MediaFramework::UnsubscribeFromRenderStage(const std::weak_ptr<IPage>& rendereable)
+{
+    MediaFramework& instance = Get();
+    if (const auto page = instance.mRenderablePages.find(rendereable); page != instance.mRenderablePages.end())
+    {
+        instance.mRenderablePages.erase(page);
+    }
+}
+
 bool MediaFramework::IsInitialized()
 {
     const MediaFramework& instance = Get();

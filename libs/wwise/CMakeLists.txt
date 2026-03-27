@@ -84,29 +84,30 @@ elseif (APPLE)
     file(GLOB RELEASE_PLUGIN_DLLS "${WWISE_RELEASE_DLL_PATH}/*.dylib")
 endif ()
 
-# Use generator expressions to select correct libraries based on configuration
+# Use generator expressions to select correct libraries based on configuration (Build Time)
 set(WWISE_CORE_LIBS "$<IF:$<CONFIG:Debug>,${WWISE_DEBUG_LIBS},${WWISE_RELEASE_LIBS}>")
-set(PLUGIN_DLLS "$<IF:$<CONFIG:Debug>,${DEBUG_PLUGIN_DLLS},${RELEASE_PLUGIN_DLLS}>")
 
 
 ###
 ## 4 - Copy all the Wwise audio plugins to the build folder
 ###
 
-# Copy DLLs for both configurations at build time using custom targets
-# This ensures DLLs are copied for multi-config generators like Visual Studio
-add_custom_target(copy_wwise_plugins_debug ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:wwise_streaming_manager>/plugins/wwise"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${DEBUG_PLUGIN_DLLS} "$<TARGET_FILE_DIR:wwise_streaming_manager>/plugins/wwise"
-    COMMENT "Copying Wwise Debug plugins to build directory"
-)
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(PLUGIN_DLLS ${DEBUG_PLUGIN_DLLS})
+else()
+    set(PLUGIN_DLLS ${RELEASE_PLUGIN_DLLS})
+endif()
 
-add_custom_target(copy_wwise_plugins_release ALL
-    COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:wwise_streaming_manager>/plugins/wwise"
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different ${RELEASE_PLUGIN_DLLS} "$<TARGET_FILE_DIR:wwise_streaming_manager>/plugins/wwise"
-    COMMENT "Copying Wwise Release plugins to build directory"
-)
+if (DEFINED CMAKE_RUNTIME_OUTPUT_DIRECTORY)
+    set(WWISE_PLUGINS_DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/plugins/wwise")
+else ()
+    set(WWISE_PLUGINS_DESTINATION "${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE}/plugins/wwise")
+endif ()
 
+# Install all the dynamic library plugins in the build folder
+file(INSTALL ${PLUGIN_DLLS} DESTINATION ${WWISE_PLUGINS_DESTINATION}
+        USE_SOURCE_PERMISSIONS
+        FILES_MATCHING PATTERN "*${CMAKE_SHARED_LIBRARY_SUFFIX}")
 
 ###
 ## 5 - Build and link the Default Wwise Streaming Manager

@@ -14,6 +14,7 @@ class MainMenu final : public IWidget
 
 	private:
 		std::unique_ptr<IWidget> mFileMenu;
+		std::unique_ptr<IWidget> mPagesMenu;
 		std::unique_ptr<IWidget> mSettingsMenu;
 		std::unique_ptr<IWidget> mOptionsMenu;
 		std::unique_ptr<IWidget> mAboutMenu;
