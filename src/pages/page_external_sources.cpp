@@ -23,8 +23,8 @@ namespace
     const std::string& externalSourceSingle = "ExternalSource_Single";
     const std::string& externalSourceMulti = "ExternalSource_Multi";
 
-    const std::string& reverbOnEventName = "ExternalSourcesReverbOn";
-    const std::string& reverbOffEventName = "ExternalSourcesReverbOff";
+    const std::string& reverbOnEventName = "ExternalSources_ReverbOn";
+    const std::string& reverbOffEventName = "ExternalSources_ReverbOff";
 
     const std::string& mediaName_1 = "1_FromMemory_WemOpus.wem";
     const std::string& mediaName_2 = "2_Streamed_Vorbis.wem";

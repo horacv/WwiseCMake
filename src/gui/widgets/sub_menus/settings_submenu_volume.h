@@ -16,5 +16,6 @@ class SettingsSubMenuVolume final : public IWidget
 		float mMasterVolumeCurrent;
 		float mMusicVolumeCurrent;
 		float mSFXVolumeCurrent;
+		float mVOVolumeCurrent;
 };
 #endif
