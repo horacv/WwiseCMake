@@ -1,6 +1,14 @@
-#include "page_external_sources.h"
+// Refer to: https://www.audiokinetic.com/en/public-library/2024.1.12_9034/?source=SDK&id=integrating_external_sources.html
 
-#include <ranges>
+/*
+ * This page shows how to play external media using external sources in Wwise.
+ * It shows how to play media from memory or streamed from disk.
+ *
+ * By using the event callback on AK_EndOfEvent, it's possible to know the precise time when the memory buffer can be freed.
+ *
+ */
+
+#include "page_external_sources.h"
 
 #include "media/media_framework.h"
 
@@ -147,6 +155,8 @@ void PageExternalSources::PlayExternalSources(const EventAndMediaInfo& eventAndM
 
         if (bIsStreamed)
         {
+            // To stream media, provide a path name relative to the folder provided to the IO manager
+            // See mLowLevelIO.SetBasePath in audio_engine.cpp
             paths.emplace_back(AudioEngine::GetExternalSourcesSubFolder().data() + mediaName);
 
 #ifdef AK_OS_WCHAR // Windows only!
@@ -154,11 +164,11 @@ void PageExternalSources::PlayExternalSources(const EventAndMediaInfo& eventAndM
 #else
             mediaPaths.push_back(paths.back().string());
 #endif
-
             newMedia.szFile = mediaPaths.back().data();
         }
         else
         {
+            // To play from memory,provide a path name relative to the executable or a fully qualified path
             paths.emplace_back(AudioEngine::GetExternalSourcesBasePath().data() + mediaName);
 
             InMemoryAudioData newInMemoryDataEntry;
@@ -168,6 +178,7 @@ void PageExternalSources::PlayExternalSources(const EventAndMediaInfo& eventAndM
                 return;
             }
 
+            // Memory buffers need to persist during the lifetime of the media playback
             newInMemoryData.push_back(std::move(newInMemoryDataEntry));
             newMedia.pInMemory = newInMemoryData.back().data();
             newMedia.uiMemorySize = newInMemoryData.back().size();
@@ -284,7 +295,6 @@ void PageExternalSources::RenderStage()
         ImGui::PushStyleColor(ImGuiCol_ButtonHovered, static_cast<ImVec4>(ImColor::HSV(0.0f, 0.7f, 0.7f)));
         ImGui::PushStyleColor(ImGuiCol_ButtonActive, static_cast<ImVec4>(ImColor::HSV(0.0f, 0.8f, 0.8f)));
         ImGui::PushStyleVarX(ImGuiStyleVar_ButtonTextAlign, 0.5f);
-        ImGui::SetNextItemWidth(100.0f);
         if (ImGui::Button("STOP"))
         {
             AudioEngine::StopPlayingAudioInstance(currentAudioPlayingID);
