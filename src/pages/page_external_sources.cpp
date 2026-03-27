@@ -193,6 +193,8 @@ void PageExternalSources::PlayExternalSources(const EventAndMediaInfo& eventAndM
         currentAudioPlayingID = AudioEngine::PlayAudioEvent(eventAndMediaInfo.eventName, audioObjectID,
         AK_EndOfEvent, &ExternalSourceEventCallback, this, media);
 
+        if (currentAudioPlayingID == AK_INVALID_PLAYING_ID) { return; }
+
         std::lock_guard lock(audioInMemoryMutex);
         for (auto& newEntry: newInMemoryData)
         {
