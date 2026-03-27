@@ -28,6 +28,7 @@ public:
     static const MediaWindowSettings& GetCurrentWindowSettings();
 
     static void SubscribeToRenderStage(const std::weak_ptr<IPage>& rendereable);
+    static void UnsubscribeFromRenderStage(const std::weak_ptr<IPage>& rendereable);
 
     static bool IsInitialized();
 

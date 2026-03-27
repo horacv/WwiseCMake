@@ -21,6 +21,11 @@
 
 #include "audio_config.h"
 
+namespace
+{
+    constexpr std::string_view configFilePath = "config/audio_engine.ini";
+}
+
 std::unique_ptr<AudioEngine> AudioEngine::sInstance = nullptr;
 uint64_t AudioEngine::sNextAudioObjectID = 0;
 
@@ -221,7 +226,7 @@ bool AudioEngine::Initialize()
     AudioEngine& audioEngine = Get();
 
     AudioConfig config;
-    if (!config.LoadConfigFile("config/audio_engine.ini"))
+    if (!config.LoadConfigFile(configFilePath.data()))
     {
         assert(!"Could not load configuration file");
     }
@@ -253,10 +258,28 @@ bool AudioEngine::Initialize()
         assert(!"Could not initialize the Low-Level I/O system");
     }
 
-    if (audioEngine.mLowLevelIO.SetBasePath(AKTEXT("assets/soundbanks/" AUDIO_PLATFORM "/")) != AK_Success)
+    std::string soundbankPath = config.GetString("Paths", "szSoundbankBasePath", "");
+    if (soundbankPath.empty())
+    {
+        assert(!"Sound Bank Base Path is empty");
+    }
+    audioEngine.soundbankBasePath =  soundbankPath + "/" + AUDIO_PLATFORM + "/";
+
+    std::filesystem::path soundbankPlatformPath = audioEngine.soundbankBasePath;
+
+#ifdef AK_OS_WCHAR // Windows only - Wide!
+    std::wstring path = soundbankPlatformPath.wstring();
+#else              // Rest OS - Narrow!
+    std::string path = soundbankPlatformPath.string();
+#endif
+    if (audioEngine.mLowLevelIO.SetBasePath(path.data()) != AK_Success)
     {
         assert(!"Failed setting the Soundbanks base path");
     }
+
+    std::string externalSourcesFolderName = config.GetString("Paths", "szExternalSourcesFolderName", "");
+    audioEngine.externalSourcesSubFolder = externalSourcesFolderName + "/";
+    audioEngine.externalSourcesBasePath = audioEngine.soundbankBasePath + audioEngine.externalSourcesSubFolder;
 
     AkInitSettings initSettings{};
     AK::SoundEngine::GetDefaultInitSettings(initSettings);
@@ -337,6 +360,24 @@ void AudioEngine::Terminate()
     std::cout << "Audio Engine Terminated" << std::endl;
 }
 
+std::string_view AudioEngine::GetSoundBanksBasePath()
+{
+    if (!IsInitialized()) { return std::string_view(); }
+    return Get().soundbankBasePath;
+}
+
+std::string_view AudioEngine::GetExternalSourcesSubFolder()
+{
+    if (!IsInitialized()) { return std::string_view(); }
+    return Get().externalSourcesSubFolder;
+}
+
+std::string_view AudioEngine::GetExternalSourcesBasePath()
+{
+    if (!IsInitialized()) { return std::string_view(); }
+    return Get().externalSourcesBasePath;
+}
+
 void AudioEngine::Update()
 {
     if (!IsInitialized()) { return; }
@@ -411,22 +452,45 @@ bool AudioEngine::AudioObjectSetPosition(const uint64_t audioObjectID, const Aud
 // Events
 
 uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const uint64_t audioObjectID,
-    const AudioCallbackType callbackType, const AudioCallbackFunc callback, void* callbackCookie)
+    const AudioCallbackType callbackType, const AudioCallbackFunc callback, void* callbackCookie,
+    const std::vector<AudioExternalSourceInfo>& ExternalSources)
 {
     const AkGameObjectID ID = audioObjectID <= 0 || audioObjectID == AK_INVALID_GAME_OBJECT ? Get().mDefaultAudioObject : audioObjectID;
 
     AudioPosition position;
     position.Set({0,0,0},{1,0,0},{0,1,0});
-    return PlayAudioEvent(eventName, position, ID, callbackType, callback, callbackCookie);
+    return PlayAudioEvent(eventName, position, ID, callbackType, callback, callbackCookie, ExternalSources);
 }
 
 uint32_t AudioEngine::PlayAudioEvent(const std::string& eventName, const AudioPosition& position,
     const uint64_t audioObjectID, const AudioCallbackType callbackType,
-    const AudioCallbackFunc callback, void* callbackCookie)
+    const AudioCallbackFunc callback, void* callbackCookie, std::vector<AudioExternalSourceInfo> ExternalSources)
 {
     if (!IsInitialized()) { return 0; }
     AK::SoundEngine::SetPosition(audioObjectID, position);
-    return AK::SoundEngine::PostEvent(eventName.c_str(), audioObjectID, callbackType, callback, callbackCookie);
+
+    return AK::SoundEngine::PostEvent(eventName.c_str(), audioObjectID,
+        callbackType, callback, callbackCookie, ExternalSources.size(), ExternalSources.data());
+}
+void AudioEngine::StopPlayingAudioInstance(const uint32_t eventInstanceID, const int32_t transitionDurationMs, const AudioCurveInterpolation curve)
+{
+    if (!IsInitialized()) { return; }
+    if (eventInstanceID == AK_INVALID_PLAYING_ID) { return; }
+    AK::SoundEngine::ExecuteActionOnPlayingID(AK::SoundEngine::AkActionOnEventType_Stop, eventInstanceID, transitionDurationMs, curve);
+}
+
+void AudioEngine::CancelAllCallbacksForAudioInstance(const uint32_t eventInstanceID)
+{
+    if (!IsInitialized()) { return; }
+    if (eventInstanceID == AK_INVALID_PLAYING_ID) { return; }
+    AK::SoundEngine::CancelEventCallback(eventInstanceID);
+}
+
+void AudioEngine::CancelAllCallbacksForAudioObject(const uint64_t audioObjectID)
+{
+    if (!IsInitialized()) { return; }
+    if (audioObjectID == AK_INVALID_AUDIO_OBJECT_ID) { return; }
+    AK::SoundEngine::CancelEventCallbackGameObject(audioObjectID);
 }
 
 // Parameters
@@ -464,6 +528,12 @@ bool AudioEngine::GetParameter(const std::string& parameterName, float& outValue
 
     outParameterType = type;
     return result == AK_Success;
+}
+
+uint32_t AudioEngine::GetAudioIDFromName(const std::string &name)
+{
+    if (!IsInitialized()) { return 0; }
+    return AK::SoundEngine::GetIDFromString(name.c_str());
 }
 
 // Sound Engine Advanced

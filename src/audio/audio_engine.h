@@ -20,6 +20,8 @@ using AudioCurveInterpolation = AkCurveInterpolation;
 using AudioCallbackFunc = AkCallbackFunc;
 using AudioPosition = AkSoundPosition;
 using AudioParameterType = AK::SoundEngine::Query::RTPCValue_type;
+using AudioCurveInterpolation = AkCurveInterpolation;
+using AudioExternalSourceInfo = AkExternalSourceInfo;
 
 class AudioEngine
 {
@@ -28,6 +30,10 @@ class AudioEngine
 
 		static bool Initialize();
 		static void Terminate();
+
+		static std::string_view GetSoundBanksBasePath();
+		static std::string_view GetExternalSourcesSubFolder();
+		static std::string_view GetExternalSourcesBasePath();
 
 		// Call this every frame on the program's update loop
 		static void Update();
@@ -56,14 +62,22 @@ class AudioEngine
 			uint64_t audioObjectID = AK_INVALID_GAME_OBJECT,
 			AudioCallbackType callbackType = AK_CallbackBits,
 			AudioCallbackFunc callback = nullptr,
-			void* callbackCookie = nullptr);
+			void* callbackCookie = nullptr,
+			const std::vector<AudioExternalSourceInfo>& ExternalSources = {});
 
 		static uint32_t PlayAudioEvent(const std::string& eventName,
 			const AudioPosition& position,
 			uint64_t audioObjectID,
 			AudioCallbackType callbackType = AK_CallbackBits,
 			AudioCallbackFunc callback = nullptr,
-			void* callbackCookie = nullptr);
+			void* callbackCookie = nullptr,
+			std::vector<AudioExternalSourceInfo> ExternalSources = {});
+
+		static void StopPlayingAudioInstance(uint32_t eventInstanceID,
+			int32_t transitionDurationMs = 0, AudioCurveInterpolation curve = AkCurveInterpolation_Linear);
+
+		static void CancelAllCallbacksForAudioInstance(uint32_t eventInstanceID);
+		static void CancelAllCallbacksForAudioObject(uint64_t audioObjectID);
 
 		// Parameters
 
@@ -81,6 +95,7 @@ class AudioEngine
 
 		// Sound Engine Advanced
 
+		static uint32_t GetAudioIDFromName(const std::string& name);
 		static uint32_t GetDeviceSampleRate();
 		static bool GetDeviceChannelConfigType(std::string& outChannelConfigType, uint32_t& outNumberOfChannels);
 		static bool GetDefaultAudioDeviceName(std::wstring& outCurrentDeviceName);
@@ -91,6 +106,10 @@ class AudioEngine
 		AkGameObjectID mDefaultAudioObject;
 		AkGameObjectID mDefaultAudioListener;
 		CAkFilePackageLowLevelIODeferred mLowLevelIO;
+
+		std::string soundbankBasePath;
+		std::string externalSourcesSubFolder;
+		std::string externalSourcesBasePath;
 
 		AudioEngine();
 };

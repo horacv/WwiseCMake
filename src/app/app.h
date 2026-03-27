@@ -19,12 +19,15 @@ class Application
 		bool mIsRunning;
 
 		std::shared_ptr<IPage> currentPage;
+		std::vector<std::shared_ptr<IPage>> mPagesPendingDestroy;
 		std::vector<InputEvent> inputEventsCurrent;
 
 		void Start() const;
-		void InitializeCurrentPage() const;
 		void ProcessEvents();
-		static void Update();
+		void Update();
 		void Render();
+
+		void ChangePage(const std::string_view& pageName);
+		void HandlePagesPendingDestroy();
 };
 #endif

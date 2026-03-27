@@ -20,10 +20,12 @@ namespace
 	constexpr auto LABEL_SLIDER_MASTER = "Master Volume";
 	constexpr auto LABEL_SLIDER_MUSIC = "Music Volume";
 	constexpr auto LABEL_SLIDER_SFX = "SFX Volume";
+	constexpr auto LABEL_SLIDER_VO = "VO Volume";
 
 	constexpr auto PARAM_MASTER_VOLUME = "Volume_Master";
 	constexpr auto PARAM_MUSIC_VOLUME = "Volume_MX";
 	constexpr auto PARAM_SFX_VOLUME = "Volume_SX";
+	constexpr auto PARAM_VO_VOLUME = "Volume_VO";
 }
 
 
@@ -31,6 +33,7 @@ SettingsSubMenuVolume::SettingsSubMenuVolume()
 : mMasterVolumeCurrent(VOLUME_MAX)
 , mMusicVolumeCurrent(VOLUME_MAX)
 , mSFXVolumeCurrent(VOLUME_MAX)
+, mVOVolumeCurrent(VOLUME_MAX)
 {}
 
 void SettingsSubMenuVolume::Initialize()
@@ -41,6 +44,8 @@ void SettingsSubMenuVolume::Initialize()
 	AudioEngine::GetParameter(PARAM_MUSIC_VOLUME, mMusicVolumeCurrent,
 		AudioParameterType::RTPCValue_Default, outParamTemp);
 	AudioEngine::GetParameter(PARAM_SFX_VOLUME, mSFXVolumeCurrent,
+		AudioParameterType::RTPCValue_Default, outParamTemp);
+	AudioEngine::GetParameter(PARAM_VO_VOLUME, mVOVolumeCurrent,
 		AudioParameterType::RTPCValue_Default, outParamTemp);
 	IWidget::Initialize();
 }
@@ -66,6 +71,11 @@ void SettingsSubMenuVolume::Stage(std::vector<InputEvent>& outEvents)
 		if (ImGui::SliderFloat(LABEL_SLIDER_SFX, &mSFXVolumeCurrent, VOLUME_MIN, VOLUME_MAX, SLIDER_RESOLUTION))
 		{
 			AudioEngine::SetParameter(PARAM_SFX_VOLUME, mSFXVolumeCurrent);
+		}
+
+		if (ImGui::SliderFloat(LABEL_SLIDER_VO, &mVOVolumeCurrent, VOLUME_MIN, VOLUME_MAX, SLIDER_RESOLUTION))
+		{
+			AudioEngine::SetParameter(PARAM_VO_VOLUME, mVOVolumeCurrent);
 		}
 
 		ImGui::EndMenu();
