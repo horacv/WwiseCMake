@@ -60,8 +60,8 @@ def main():
     # Validate arguments
     if len(sys.argv) < 2 or len(sys.argv) > 3:
         print("Usage: python setup_imgui_sources.py <imgui_version> [--delete-installer]")
-        print("Example: python setup_imgui_sources.py 1.92.5")
-        print("Example: python setup_imgui_sources.py 1.92.5 --delete-installer")
+        print("Example: python setup_imgui_sources.py 1.92.6")
+        print("Example: python setup_imgui_sources.py 1.92.6 --delete-installer")
         print("\nOptions:")
         print("  --delete-installer    Delete the installer file after successful installation")
         sys.exit(1)

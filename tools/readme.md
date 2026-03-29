@@ -18,7 +18,7 @@ Downloads and installs both SDL and SDL_ttf in one step.
 python setup_sdl_and_ttf.py --platform <platform> --sdl-version <sdl_version> --ttf-version <ttf_version> [--delete-installer <True|False>]
 ```
 - **--platform**: `windows` (default) or `mac`.
-- **--sdl-version**: e.g., `3.2.24` (default).
+- **--sdl-version**: e.g., `3.4.2` (default).
 - **--ttf-version**: e.g., `3.2.2` (default).
 - **--delete-installer**: (Optional) `True` (default) or `False`. Deletes the downloaded archives after successful extraction.
 
@@ -51,10 +51,10 @@ Copies Wwise SDK files from a local installation to the project's `libs/wwise` d
 ```bash
 python install_wwise_sdk.py <sdk_path> <platform>
 ```
-- **sdk_path**: Path to the Wwise SDK folder (e.g., `C:\Audiokinetic\Wwise2025.1.4.9062\SDK`).
+- **sdk_path**: Path to the Wwise SDK folder (e.g., `C:\Audiokinetic\Wwise2024.1.12.9034\SDK`).
 - **platform**: `windows` or `mac`.
 
 **Example:**
 ```bash
-python install_wwise_sdk.py "C:\Audiokinetic\Wwise 2024.1.0.8669\SDK" windows
+python install_wwise_sdk.py "C:\Audiokinetic\Wwise2024.1.12.9034\SDK" windows
 ```

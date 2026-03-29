@@ -20,7 +20,7 @@ def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='SDL Setup')
     parser.add_argument('--platform', const=1, default='windows', type=str, nargs='?', help='')
     parser.add_argument('--delete-installer', const=1, default='True', type=str , nargs='?', help='')
-    parser.add_argument('--sdl-version', const=1, default='3.2.24', type=str, nargs='?', help='')
+    parser.add_argument('--sdl-version', const=1, default='3.4.2', type=str, nargs='?', help='')
     parser.add_argument('--ttf-version', const=1, default='3.2.2', type=str, nargs='?', help='')
     return parser.parse_args()
 
