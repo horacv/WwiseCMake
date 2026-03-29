@@ -3,11 +3,11 @@ SDL Installer for CI/CD
 Extracts SDL installer, copies API files to the project, and cleans up.
 """
 
-import sys
-import subprocess
-import shutil
-import tempfile
 from pathlib import Path
+import shutil
+import subprocess
+import sys
+import tempfile
 
 # Project directories
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -44,11 +44,13 @@ def detect_platform(installer_path):
     else:
         raise ValueError(f"Cannot detect platform from installer: {installer_path.name}")
 
+
 def extract_compressed_archive(installer_path, temp_dir):
     """Extract .zip or .tar.gz archive."""
-    print("Extracting archive...")
+    print("\n" + "Extracting archive...")
     shutil.unpack_archive(str(installer_path), temp_dir)
     print("✓ Extracted archive successfully")
+
 
 def extract_macos_dmg(installer_path, temp_dir):
     """Extract macOS .dmg installer."""
@@ -103,19 +105,19 @@ def copy_api_files(temp_dir, platform):
         print(f"⚠ Warning: Core headers not found at {src}")
 
     # Copy core libraries
-    src = source_root / api_structure['lib_dir']
-    dst = SDL_LIB_DIR / "lib" / config['lib_subdir']
+    src: Path = source_root / api_structure['lib_dir']
+    dst: Path = SDL_LIB_DIR / "lib" / str(config['lib_subdir'])
     if src.exists():
         dst.parent.mkdir(parents=True, exist_ok=True)
         if src.exists():
             if platform == "mac":
                 # Copy the whole framework bundle into libs/sdl/lib/mac/SDL3.framework
-                dst = SDL_LIB_DIR / "lib" / config['lib_subdir'] / src.name
+                dst = SDL_LIB_DIR / "lib" / str(config['lib_subdir']) / src.name
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copytree(src, dst, dirs_exist_ok=True)
                 print(f"✓ Copied core framework ({src.name})")
             else:
-                dst = SDL_LIB_DIR / "lib" / config['lib_subdir']
+                dst = SDL_LIB_DIR / "lib" / str(config['lib_subdir'])
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copytree(src, dst, dirs_exist_ok=True)
                 print(f"✓ Copied core libraries ({len(list(dst.glob('*')))} files)")
@@ -141,13 +143,13 @@ def main():
         sys.exit(1)
 
     print("\n" + "=" * 60)
-    print(f"SDL Installer")
+    print(f"SDL Installer", end="")
     print("\n" + "=" * 60)
 
     # Detect platform
     try:
         platform = detect_platform(installer_path)
-        print(f"Installer found: {installer_path.name}")
+        print("\n" + f"Installer found: {installer_path.name}")
         print(f"Platform: {platform}")
     except ValueError as e:
         print(f"Error: {e}")

@@ -1,11 +1,29 @@
 ### Tools Directory
 
-This directory contains Python scripts to automate the downloading and installation of required libraries (SDL) for the project.
+This directory contains Python scripts to automate the downloading and installation of required libraries (SDL, ImGui) for the project.
 
 #### Prerequisites
 
 - **Python 3.x**
 - **Requests library**: Install via `pip install requests`
+
+---
+
+### ImGui Scripts
+
+#### `setup_imgui_sources.py`
+Downloads and installs ImGui source code.
+
+```bash
+python setup_imgui_sources.py <imgui_version> [--delete-installer]
+```
+- **imgui_version**: e.g., `1.92.6`.
+- **--delete-installer**: (Optional) Deletes the downloaded archive after successful extraction.
+
+**Example:**
+```bash
+python setup_imgui_sources.py 1.92.6 --delete-installer
+```
 
 ---
 
@@ -24,7 +42,7 @@ python setup_sdl_and_ttf.py --platform <platform> --sdl-version <sdl_version> --
 
 **Example:**
 ```bash
-python setup_sdl_and_ttf.py --platform windows --sdl-version 3.2.24 --ttf-version 3.2.2
+python setup_sdl_and_ttf.py --platform windows --sdl-version 3.4.2 --ttf-version 3.2.2
 ```
 
 #### `get_sdl_base.py` / `get_sdl_ttf.py`
@@ -39,6 +57,12 @@ Extracts and copies SDL or SDL_ttf files from a local archive to the project's `
 ```bash
 python install_sdl_base.py <installer_file> [--delete-installer]
 python install_sdl_ttf.py <installer_file> [--delete-installer]
+```
+
+**Example:**
+```bash
+python install_sdl_base.py SDL3-devel-3.4.2-VC.zip --delete-installer
+python install_sdl_ttf.py SDL3_ttf-devel-3.2.2-VC.zip --delete-installer
 ```
 
 ---
