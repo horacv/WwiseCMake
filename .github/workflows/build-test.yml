@@ -15,15 +15,15 @@ jobs:
         os_config:
           - os: windows-latest
             platform: windows
-            imgui_version: "1.92.5"
-            wwise_version: "2025.1.4.9062"
-            sdl_version: "3.2.24"
+            imgui_version: "1.92.6"
+            wwise_version: "2025.1.6.9117"
+            sdl_version: "3.4.2"
             ttf_version: "3.2.2"
           - os: macos-latest
             platform: mac
-            imgui_version: "1.92.5"
-            wwise_version: "2025.1.4.9062"
-            sdl_version: "3.2.24"
+            imgui_version: "1.92.6"
+            wwise_version: "2025.1.6.9117"
+            sdl_version: "3.4.2"
             ttf_version: "3.2.2"
 
     runs-on: ${{ matrix.os_config.os }}

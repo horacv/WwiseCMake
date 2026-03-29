@@ -17,7 +17,7 @@ PLATFORM_CONFIG = {
         'lib_subdir': 'x64_vc170',
         },
     'mac': {
-        'lib_subdir': 'Mac_Xcode1600',
+        'lib_subdir': 'Mac_Xcode2600',
     }
 }
 
@@ -69,7 +69,7 @@ def copy_sdk_files(source_dir, platform):
 def main():
     if len(sys.argv) < 3:
         print("Usage: python install_wwise_sdk.py <sdk_path> <platform>")
-        print("Example: python install_wwise_sdk.py C:\Audiokinetic\Wwise2025.1.4.9062\SDK windows")
+        print("Example: python install_wwise_sdk.py C:\Audiokinetic\Wwise2025.1.6.9117\SDK windows")
         sys.exit(1)
 
     sdk_path = Path(sys.argv[1])

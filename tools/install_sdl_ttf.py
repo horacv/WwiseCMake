@@ -126,8 +126,8 @@ def copy_api_files(temp_dir, platform):
 def main():
     if len(sys.argv) < 2 or len(sys.argv) > 3:
         print("Usage: python install_sdl_ttf.py <installer_file> [--delete-installer]")
-        print("Example: python install_sdl_ttf.py SDL3_ttf-devel-3.2.24-VC.zip")
-        print("Example: python install_sdl_ttf.py SDL3_ttf-devel-3.2.24-VC.zip --delete-installer")
+        print("Example: python install_sdl_ttf.py SDL3_ttf-devel-3.2.2-VC.zip")
+        print("Example: python install_sdl_ttf.py SDL3_ttf-devel-3.2.2-VC.zip --delete-installer")
         print("\nOptions:")
         print("  --delete-installer    Delete the installer file after successful installation")
         sys.exit(1)
