@@ -3,9 +3,9 @@ Wwise SDK Installer for CI/CD
 Copies Wwise SDK files to the project.
 """
 
-import sys
-import shutil
 from pathlib import Path
+import shutil
+import sys
 
 # Project directories
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -21,14 +21,15 @@ PLATFORM_CONFIG = {
     }
 }
 
+
 def copy_sdk_files(source_dir, platform):
-    """Copy Wwise SDK files from source directory to project."""
+    """Copy Wwise SDK files from the source directory to the project."""
     print("\nCopying Wwise SDK files to project...")
 
     config = PLATFORM_CONFIG[platform]
     lib_subdir = config['lib_subdir']
 
-    # Find the actual SDK directory in temp (may be nested)
+    # Find the actual SDK directory in temp (It may be nested)
     sdk_dirs = list(source_dir.rglob('include'))
     if not sdk_dirs:
         sys.exit(1)
@@ -80,15 +81,16 @@ def main():
         print(f"Error: SDK folder not found: {sdk_path}")
         sys.exit(1)
 
+    print()
     print("\n" + "=" * 60)
     print(f"Wwise SDK Installer")
-    print("\n" + "=" * 60)
+    print("=" * 60)
 
     try:
         # Copy SDK files to the project
         copy_sdk_files(sdk_path, platform)
 
-        print("\n✓ Installation complete!")
+        print("\n" + "Installation complete!")
         print(f"Wwise SDK files copied to: {WWISE_LIB_DIR}")
 
     except Exception as e:

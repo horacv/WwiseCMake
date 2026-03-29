@@ -19,7 +19,7 @@ PLATFORM_CONFIG = {
 }
 
 def download_with_progress(url, filepath, chunk_size=65536):
-    """Download file with progress indication."""
+    """Download a file with a progress indication."""
     response = requests.get(url, stream=True, allow_redirects=True)
     response.raise_for_status()
 

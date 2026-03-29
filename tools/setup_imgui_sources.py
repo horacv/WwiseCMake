@@ -2,20 +2,21 @@
 imgui Downloader
 Downloads the imgui libraries for the specified platform.
 """
-import shutil
+
 from pathlib import Path
+import requests
+import shutil
+import sys
 import tempfile
 
-import requests
-import sys
-
-imgui_releases_base_url = 'https://github.com/ocornut/imgui/archive/refs/tags'
-file_template = 'v{version}.tar.gz'
-
+IMGUI_RELEASES_BASE_URL = 'https://github.com/ocornut/imgui/archive/refs/tags'
 IMGUI_PROJ_SRC_DIR = Path(__file__).parent.parent / "libs" / "imgui"
 
+file_template = 'v{version}.tar.gz'
+
+
 def download_with_progress(url, filepath, chunk_size=65536):
-    """Download file with progress indication."""
+    """Download a file with a progress indication."""
     response = requests.get(url, stream=True, allow_redirects=True)
     response.raise_for_status()
 
@@ -31,30 +32,34 @@ def download_with_progress(url, filepath, chunk_size=65536):
                     progress = (downloaded / total_size) * 100
                     print(f"\rDownloading: {progress:.1f}%", end='', flush=True)
 
-    print()  # New line after progress
+    # New line after progress
+    print()
     return downloaded
 
-def extract_installer(installer_path, temp_dir):
+
+def extract_installer(installer_path, temp_directory):
     """Extract .zip or .tar.gz archive."""
-    print("Extracting archive...")
-    shutil.unpack_archive(str(installer_path), temp_dir)
+    print("\n" + "Extracting archive...")
+    shutil.unpack_archive(str(installer_path), temp_directory)
     print("✓ Extracted archive successfully")
 
+
 def copy_api_files(temp_dir):
-    """Copy imgui libs from temp directory to project."""
+    """Copy imgui libs from the temp directory to the project."""
     print("\nCopying imgui files to project...")
 
     src_temp_dirs = list(temp_dir.rglob('backends'))
 
     # Copy headers
-    src = src_temp_dirs[0] if src_temp_dirs else ""
-    dst = IMGUI_PROJ_SRC_DIR
+    src: Path = src_temp_dirs[0] if src_temp_dirs else Path()
+    dst: Path = IMGUI_PROJ_SRC_DIR
     if src.exists():
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(src.parent, dst, dirs_exist_ok=True)
         print(f"✓ Copied imgui sources ({len(list(dst.glob('*')))} files)")
     else:
         print(f"⚠ Warning: imgui sources not found at {src.parent}")
+
 
 def main():
     # Validate arguments
@@ -68,27 +73,27 @@ def main():
 
     imgui_version = sys.argv[1]
     delete_installer = len(sys.argv) == 3 and sys.argv[2] == '--delete-installer'
-
     filename = file_template.format(version=imgui_version)
-
-    # Build download URL
-    download_url = f"{imgui_releases_base_url}/" f"{filename}"
+    download_url = f"{IMGUI_RELEASES_BASE_URL}/" f"{filename}"
 
     try:
-        # Step 1: Validate download link
-        print("Validating download link...")
+        print()
+        print("\n" + "=" * 60)
+        print(f"Setup ImGui Sources")
+        print("=" * 60)
+
+        # Validate download link
+        print("\n" + "Validating download link...")
         link_response = requests.head(
             download_url,
             timeout=10
         )
         link_response.raise_for_status()
-
         print("✓ Link validated")
 
         # Step 2: Download the file
-        print(f"Downloading {filename}...")
+        print("\n" + f"Downloading {filename}...", end="")
         file_size = download_with_progress(download_url, filename)
-
         print(f"✓ Download complete: {filename} ({file_size:,} bytes)")
 
     except requests.exceptions.HTTPError as e:
@@ -114,7 +119,7 @@ def main():
 
     # Create a temporary directory
     temp_dir = Path(tempfile.mkdtemp(prefix="temp_imgui_install_"))
-    print(f"Temp directory: {temp_dir}")
+    print(f"✓ Temp directory: {temp_dir}")
 
     try:
         # Extract installer

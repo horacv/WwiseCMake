@@ -3,17 +3,16 @@ SDL Complete Setup
 Downloads, installs, and configures SDL in one command.
 """
 
-import sys
-import subprocess
-import argparse
 from pathlib import Path
-
-
+import argparse
+import subprocess
+import sys
 
 GET_SDL_BASE_SCRIPT = 'get_sdl_base.py'
 INSTALL_SDL_BASE_SCRIPT = 'install_sdl_base.py'
 GET_SDL_TTF_SCRIPT = 'get_sdl_ttf.py'
 INSTALL_SDL_TTF_SCRIPT = 'install_sdl_ttf.py'
+
 
 def parse_arguments() -> argparse.Namespace:
     """Parse command line arguments."""
@@ -24,8 +23,9 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument('--ttf-version', const=1, default='3.2.2', type=str, nargs='?', help='')
     return parser.parse_args()
 
+
 def run_command(script_name, args):
-    """Run a Python script with arguments and capture output."""
+    """Run a Python script with arguments and capture the output."""
     python_exe = sys.executable
     script_path = Path(__file__).parent / script_name
 
@@ -49,8 +49,8 @@ def main():
     ttf_version = args.ttf_version
     delete_installer = args.delete_installer.lower() == 'true'
 
-    print("=" * 60)
-    print("SDL Complete Setup")
+    print("\n" + "=" * 60)
+    print("Setup SDL & TTF")
     print("=" * 60)
     print(f"Platform: {platform}")
     print(f"Version: {sdl_version}")
@@ -58,12 +58,12 @@ def main():
     print("=" * 60)
 
     try:
-        # Step 1: Download SDL installer
+        # Download SDL installer
         print("\n[Step 1/4] Downloading sdl installer...")
         print("-" * 60)
         run_command(GET_SDL_BASE_SCRIPT, [platform, sdl_version])
 
-        # Step 2: Download SDL TTF installer
+        # Download SDL TTF installer
         print("\n[Step 2/4] Downloading sdl ttf installer...")
         print("-" * 60)
         run_command(GET_SDL_TTF_SCRIPT, [platform, ttf_version])
@@ -80,9 +80,8 @@ def main():
             },
         }
 
-        # Step 3: Install and extract API files (SDL)
-        print("\n[Step 3/4] Installing SDL files...")
-        print("-" * 60)
+        # Install and extract API files (SDL)
+        print("\n[Step 3/4] Installing SDL files...", end="")
 
         installer_name = installer_patterns.get(platform).get('sdl')
         if not installer_name:
@@ -95,9 +94,8 @@ def main():
 
         run_command(INSTALL_SDL_BASE_SCRIPT, install_args)
 
-        # Step 4: Install and extract API files (SDL_ttf)
-        print("\n[Step 4/4] Installing SDL TTF files...")
-        print("-" * 60)
+        # Install and extract API files (SDL_ttf)
+        print("\n[Step 4/4] Installing SDL TTF files...", end="")
 
         installer_name = installer_patterns.get(platform).get('ttf')
         if not installer_name:
@@ -114,9 +112,10 @@ def main():
         print("\n" + "=" * 60)
         print("✓ SDL Setup Complete!")
         print("=" * 60)
-        print(f"API files installed to: libs/sdl/")
+
+        print("\n" + f"✓ API files installed to: libs/sdl/")
         if delete_installer:
-            print(f"Installer cleaned up: {installer_name}")
+            print(f"✓ Installer cleaned up: {installer_name}")
         else:
             print(f"Installer preserved: {installer_name}")
         print("\nYou can now build your project with SDL")
