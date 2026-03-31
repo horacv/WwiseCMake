@@ -71,8 +71,8 @@ namespace
 PageExternalSources::PageExternalSources()
     : titleTextSurface(nullptr)
     , titleTextTexture(nullptr)
-    , audioObjectID(0)
-    , currentAudioPlayingID(0)
+    , audioObjectID(AK_INVALID_AUDIO_OBJECT_ID)
+    , currentAudioPlayingID(AK_INVALID_UNIQUE_ID)
     , selectedEventAndMediaInfo(eventsAndMedia[0])
     , bReverbEnabled(false)
 {}
@@ -95,13 +95,11 @@ void PageExternalSources::Deinitialize()
     {
         bCanDestroy.store(true, std::memory_order_release);
     }
-    else
-    {
-        AudioEngine::StopPlayingAudioInstance(currentAudioPlayingID);
-        AudioEngine::CancelAllCallbacksForAudioObject(audioObjectID);
-        AudioEngine::AudioObjectUnregister(audioObjectID);
-        AudioEngine::SoundbankUnload(soundbankName);
-    }
+
+    AudioEngine::StopPlayingAudioInstance(currentAudioPlayingID);
+    AudioEngine::CancelAllCallbacksForAudioObject(audioObjectID);
+    AudioEngine::AudioObjectUnregister(audioObjectID);
+    AudioEngine::SoundbankUnload(soundbankName);
 
     if (titleTextTexture) { SDL_DestroyTexture(titleTextTexture); }
     if (titleTextSurface) { SDL_DestroySurface(titleTextSurface); }
