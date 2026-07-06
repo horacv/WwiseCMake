@@ -28,6 +28,9 @@ public:
     PageExternalSources();
     void Initialize() override;
     void Deinitialize() override;
+
+protected:
+    void Start() override;
     void RenderStage() override;
 
 private:
@@ -44,8 +47,6 @@ private:
 
     bool bReverbEnabled;
 
-    void Start() override;
-
     void StageExternalSourceList();
     void PlayExternalSources(const EventAndMediaInfo& eventAndMediaInfo);
     void HandleClearUnusedResources(uint32_t audioInstanceID);
@@ -54,6 +55,5 @@ private:
     static void ExternalSourceEventCallback(AudioCallbackType type,
         AudioEventCallbackInfo* eventInfo, void* callbackInfo, void* cookie);
 };
-
 
 #endif

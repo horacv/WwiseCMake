@@ -127,8 +127,8 @@ void PageExternalSources::StageExternalSourceList()
     for (const auto& info : eventsAndMedia)
     {
         const bool bSelected = selectedEventAndMediaInfo.uiLabel == info.uiLabel;
-        const ImGuiSelectableFlags_ flags =  bSelected ? ImGuiSelectableFlags_Highlight: ImGuiSelectableFlags_None;
-        if (ImGui::Selectable(info.uiLabel.c_str(), bSelected, flags))
+        if (const ImGuiSelectableFlags_ flags =  bSelected ? ImGuiSelectableFlags_Highlight: ImGuiSelectableFlags_None;
+            ImGui::Selectable(info.uiLabel.c_str(), bSelected, flags))
         {
             selectedEventAndMediaInfo = info;
         }

@@ -13,8 +13,8 @@ constexpr SDL_Color BACKGROUND_COLOR{21, 21, 21, 255};
 namespace
 {
 	const std::unordered_map<std::string_view, std::function<std::unique_ptr<IPage>()>> pages = {
-		{"Cover", [](){ return std::make_unique<PageCover>(); }},
-		{"External Sources", [](){ return std::make_unique<PageExternalSources>(); }}
+		{"Cover", []{ return std::make_unique<PageCover>(); }},
+		{"External Sources", []{ return std::make_unique<PageExternalSources>(); }}
 	};
 }
 

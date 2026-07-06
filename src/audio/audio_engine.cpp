@@ -2,8 +2,8 @@
 
 /*******************************************/
 /* Required to auto-register codec plugins */
-#include <AK/Plugin/AkVorbisDecoderFactory.h>
-#include <AK/Plugin/AkOpusDecoderFactory.h>
+#include <AK/Plugin/AkVorbisDecoderFactory.h> // NOLINT
+#include <AK/Plugin/AkOpusDecoderFactory.h> // NOLINT
 /*******************************************/
 
 #include <AK/SoundEngine/Common/AkMemoryMgrModule.h>
@@ -347,19 +347,19 @@ void AudioEngine::Terminate()
 
 std::string_view AudioEngine::GetSoundBanksBasePath()
 {
-    if (!IsInitialized()) { return std::string_view(); }
+    if (!IsInitialized()) { return {}; }
     return Get().soundbankBasePath;
 }
 
 std::string_view AudioEngine::GetExternalSourcesSubFolder()
 {
-    if (!IsInitialized()) { return std::string_view(); }
+    if (!IsInitialized()) { return {}; }
     return Get().externalSourcesSubFolder;
 }
 
 std::string_view AudioEngine::GetExternalSourcesBasePath()
 {
-    if (!IsInitialized()) { return std::string_view(); }
+    if (!IsInitialized()) { return {}; }
     return Get().externalSourcesBasePath;
 }
 

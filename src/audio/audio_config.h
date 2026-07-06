@@ -65,13 +65,10 @@ public:
 
 			else
 			{
-				auto delimIndex = line.find(KEY_VALUE_SEPARATOR);
-				if (delimIndex != std::string::npos)
+				if (auto delimIndex = line.find(KEY_VALUE_SEPARATOR); delimIndex != std::string::npos)
 				{
 					std::string key = line.substr(0, delimIndex);
-					std::string value = line.substr(delimIndex + 1);
-
-					if (value.starts_with(ARRAY_START)) // This is an array
+					if (std::string value = line.substr(delimIndex + 1); value.starts_with(ARRAY_START)) // This is an array
 					{
 						const auto endIndex = value.find(ARRAY_END);
 						const auto rawItems = value.substr(1, endIndex - 1);
