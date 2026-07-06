@@ -16,5 +16,4 @@ private:
     std::unique_ptr<IWidget> mVolumeSettingsMenu;
 };
 
-
 #endif

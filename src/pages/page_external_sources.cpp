@@ -123,8 +123,8 @@ void PageExternalSources::StageExternalSourceList()
     for (const auto& info : eventsAndMedia)
     {
         const bool bSelected = selectedEventAndMediaInfo.uiLabel == info.uiLabel;
-        const ImGuiSelectableFlags_ flags =  bSelected ? ImGuiSelectableFlags_Highlight: ImGuiSelectableFlags_None;
-        if (ImGui::Selectable(info.uiLabel.c_str(), bSelected, flags))
+        if (const ImGuiSelectableFlags_ flags =  bSelected ? ImGuiSelectableFlags_Highlight: ImGuiSelectableFlags_None;
+            ImGui::Selectable(info.uiLabel.c_str(), bSelected, flags))
         {
             selectedEventAndMediaInfo = info;
         }
@@ -346,7 +346,7 @@ void PageExternalSources::ExternalSourceEventCallback(AudioCallbackType type, Au
 {
     if (!info) { return; }
     const auto page = static_cast<PageExternalSources*>(info->pCookie);
-    const auto eventCallbackInfo = static_cast<AkEventCallbackInfo*>(info);
+    const auto eventCallbackInfo = static_cast<AkEventCallbackInfo*>(info); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
     if (!(page && eventCallbackInfo)) { return; }
 
     if (type == AK_EndOfEvent)
