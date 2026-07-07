@@ -70,7 +70,7 @@ def copy_sdk_files(source_dir, platform):
 def main():
     if len(sys.argv) < 3:
         print(r"Usage: python install_wwise_sdk.py <sdk_path> <platform>")
-        print(r"Example: python install_wwise_sdk.py C:\Audiokinetic\Wwise2024.1.12.9034\SDK windows")
+        print(r"Example: python install_wwise_sdk.py C:\Audiokinetic\Wwise_2024.1.14.9084\SDK windows")
         sys.exit(1)
 
     sdk_path = Path(sys.argv[1])

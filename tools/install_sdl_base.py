@@ -128,8 +128,8 @@ def copy_api_files(temp_dir, platform):
 def main():
     if len(sys.argv) < 2 or len(sys.argv) > 3:
         print("Usage: python install_sdl_base.py <installer_file> [--delete-installer]")
-        print("Example: python install_sdl_base.py SDL3-devel-3.4.2-VC.zip")
-        print("Example: python install_sdl_base.py SDL3-devel-3.4.2-VC.zip --delete-installer")
+        print("Example: python install_sdl_base.py SDL3-devel-3.4.12-VC.zip")
+        print("Example: python install_sdl_base.py SDL3-devel-3.4.12-VC.zip --delete-installer")
         print("\nOptions:")
         print("  --delete-installer    Delete the installer file after successful installation")
         sys.exit(1)
