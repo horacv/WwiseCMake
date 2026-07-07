@@ -44,7 +44,7 @@ def main():
     if len(sys.argv) != 3:
         print("Usage: python get_sdl_base.py <platform> <sdl_version>")
         print("Platforms: mac, windows")
-        print("Example: python get_sdl_base.py windows 3.4.2")
+        print("Example: python get_sdl_base.py windows 3.4.12")
         sys.exit(1)
 
     platform = sys.argv[1]
