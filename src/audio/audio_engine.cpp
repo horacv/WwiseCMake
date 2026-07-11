@@ -105,10 +105,6 @@ bool AudioEngine::Initialize()
     AK::Option::SetI(AkOption_Output_DeviceID, config.GetInt("Output", "idDevice"));
     AK::Option::SetI(AkOption_Output_MaxSystemAudioObjects, config.GetInt("Output", "uMaxSystemAudioObjects"));
 
-#if defined(AK_APPLE)
-    //PlatformInitSettings.uNumSpatialAudioPointSources = config.GetInt(category, "uMaxSystemAudioObjects");
-#endif
-
     // CHANNEL CONFIG
     std::unordered_map<std::string, AkChannelConfigType> channelConfigTypes {
             {"Anonymous", AK_ChannelConfigType_Anonymous},
