@@ -146,7 +146,7 @@ void PageExternalSources::PlayExternalSources(const EventAndMediaInfo& eventAndM
 
     for (const auto& [mediaName, ExtSourceCookieName, codecID, bIsStreamed] : eventAndMediaInfo.mediaInfo)
     {
-        AudioExternalSourceInfo newMedia;
+        AudioExternalSourceInfo newMedia{};
         newMedia.idCodec = codecID;
         newMedia.iExternalSrcCookie = AudioEngine::GetAudioIDFromName(ExtSourceCookieName);
 

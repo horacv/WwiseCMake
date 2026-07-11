@@ -16,13 +16,13 @@ jobs:
           - os: windows-latest
             platform: windows
             imgui_version: "1.92.8"
-            wwise_version: "2025.1.8.9170"
+            wwise_version: "2026.1.1.9196"
             sdl_version: "3.4.12"
             ttf_version: "3.2.2"
           - os: macos-latest
             platform: mac
             imgui_version: "1.92.8"
-            wwise_version: "2025.1.8.9170"
+            wwise_version: "2026.1.1.9196"
             sdl_version: "3.4.12"
             ttf_version: "3.2.2"
 

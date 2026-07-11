@@ -47,7 +47,7 @@ set(WWISE_CORE_COMPONENTS # Required for all configurations
         "AkSoundEngine"
         "AkMemoryMgr"
         "AkStreamMgr"
-        "AkSpatialAudio"
+        "AkAcoustics"
         ${WWISE_CORE_CODEC_COMPONENTS}
 )
 set(WWISE_CORE_DEBUG_COMPONENTS # Only for the debug config: Core + Codecs + The profiler component
@@ -114,25 +114,32 @@ file(INSTALL ${PLUGIN_DLLS} DESTINATION ${WWISE_PLUGINS_DESTINATION}
 ###
 
 # Required! unless you create your own manager implementation
-# Copy the "samples/SoundEngine" folder from the Wwise SDK
-# https://www.audiokinetic.com/en/public-library/2025.1.2_8976/?source=SDK&id=streamingdevicemanager.html
-set(WWISE_STRM_MNG_PATH "${CMAKE_CURRENT_SOURCE_DIR}/samples/SoundEngine")
+# Copy the "source/StreamManager" folder from the Wwise SDK
+# https://www.audiokinetic.com/en/public-library/2026.1.1_9196/?source=SDK&id=streamingdevicemanager.html
+set(WWISE_STRM_MNG_PATH "${CMAKE_CURRENT_SOURCE_DIR}/source/StreamManager")
 
 if (WIN32 AND MSVC)
     set(WWISE_STRM_MNG_PLATFORM_PATH "${WWISE_STRM_MNG_PATH}/Win32")
+    set(DEFAULT_IO_HOOK_PLATFORM_PATH "${WWISE_STRM_MNG_PATH}/DefaultIOHook/Win32")
 elseif (APPLE)
-    set(WWISE_STRM_MNG_PLATFORM_PATH "${WWISE_STRM_MNG_PATH}/POSIX")
+    set(WWISE_STRM_MNG_PLATFORM_PATH "${WWISE_STRM_MNG_PATH}/Mac")
+    set(DEFAULT_IO_HOOK_PLATFORM_PATH "${WWISE_STRM_MNG_PATH}/DefaultIOHook/POSIX")
 endif ()
 
 file(GLOB WWISE_STRM_MNG_PLATFORM_SOURCES
-        "${WWISE_STRM_MNG_PLATFORM_PATH}*.h"
-        "${WWISE_STRM_MNG_PLATFORM_PATH}/*.cpp")
+        "${WWISE_STRM_MNG_PLATFORM_PATH}/*.h"
+        "${DEFAULT_IO_HOOK_PLATFORM_PATH}/*.h"
+        "${WWISE_STRM_MNG_PLATFORM_PATH}/*.cpp"
+        "${DEFAULT_IO_HOOK_PLATFORM_PATH}/*.cpp")
 
 set(WWISE_STRM_MNG_INCLUDE_PATH "${WWISE_STRM_MNG_PATH}/Common")
+set(DEFAULT_IO_HOOK_INCLUDE_PATH "${WWISE_STRM_MNG_PATH}/DefaultIOHook/Common")
 
 file(GLOB WWISE_STRM_MNG_SOURCES
         "${WWISE_STRM_MNG_INCLUDE_PATH}/*.h"
-        "${WWISE_STRM_MNG_INCLUDE_PATH}/*.cpp")
+        "${DEFAULT_IO_HOOK_INCLUDE_PATH}/*.h"
+        "${WWISE_STRM_MNG_INCLUDE_PATH}/*.cpp"
+        "${DEFAULT_IO_HOOK_INCLUDE_PATH}/*.cpp")
 
 # Remove the stub file to avoid duplicate symbol definitions
 list(REMOVE_ITEM WWISE_STRM_MNG_SOURCES
@@ -159,7 +166,9 @@ set_property(TARGET wwise APPEND PROPERTY INTERFACE_LINK_LIBRARIES wwise_streami
 target_include_directories(wwise INTERFACE
         "${CMAKE_CURRENT_SOURCE_DIR}/include" # All the source files in /include (AK namespace)
         "${WWISE_STRM_MNG_INCLUDE_PATH}" # All the source files for the default streaming manager
-        "${WWISE_STRM_MNG_PLATFORM_PATH}") # All the platform specific source files for the default streaming manager
+        "${WWISE_STRM_MNG_PLATFORM_PATH}" # All the platform specific source files for the default streaming manager
+        "${DEFAULT_IO_HOOK_INCLUDE_PATH}" # All the source files for the default IO Hook
+        "${DEFAULT_IO_HOOK_PLATFORM_PATH}") # All the platform specific source files for the default IO Hook
 
 
 ###

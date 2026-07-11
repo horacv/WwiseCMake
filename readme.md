@@ -7,7 +7,7 @@ A CMake template project that demonstrates integration of Audiokinetic's Wwise a
 
 ![screenshot.png](images/screenshot.png)
 
-### Verified Wwise SDK Version: 2025.1.8.9170
+### Verified Wwise SDK Version: 2026.1.1.9196 (BETA 1)
 
 ## Overview
 
@@ -60,7 +60,7 @@ Note that some IDEs can configure and build your project without using the comma
   - `wwise/`
     - `include` - Wwise SDK headers and source files
     - `lib` - Wwise static and dynamic libraries
-    - `samples` - Wwise default streaming manager files
+    - `source` - Wwise default streaming manager files
     - `CMakeLists.txt` - CMake configuration file for Wwise
   - `CMakeLists.txt` - File that exposes the libraries to the main configuration file
 - `src/` - Source code directory
@@ -70,7 +70,10 @@ Note that some IDEs can configure and build your project without using the comma
 ## Official Documentation and Helpful Links
 
 Wwise - Sound Engine Integration Walkthrough\
-https://www.audiokinetic.com/en/public-library/2025.1.2_8976/?source=SDK&id=workingwithsdks.html
+https://www.audiokinetic.com/en/public-library/2026.1.1_9196/?source=SDK&id=workingwithsdks.html
+
+Wwise - Important Migration Notes 2026.1\
+https://www.audiokinetic.com/en/public-library/2026.1.1_9196/?source=SDK&id=whatsnew_2026_1_migration.html
 
 SDL and SDL_TTF\
 https://github.com/libsdl-org/SDL \

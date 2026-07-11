@@ -1,17 +1,13 @@
 #ifndef AUDIO_ENGINE_HPP
 #define AUDIO_ENGINE_HPP
 
-// Low Level IO implementation in the "/samples/SoundEngine" folder
-#include <AkFilePackageLowLevelIODeferred.h>
-// Query namespace to retrieve data from Wwise
+#include "AK/SoundEngine/Common/AkCallbackTypes.h"
 #include "AK/SoundEngine/Common/AkQueryParameters.h"
 
 #include <memory>
 #include <string>
 
 #include "audio_config.h"
-
-struct AkSpatialAudioInitSettings;
 
 using AudioBankType = AkBankType;
 using AudioEventCallbackInfo = AkEventCallbackInfo;
@@ -105,7 +101,6 @@ class AudioEngine
 		static uint64_t sNextAudioObjectID;
 		AkGameObjectID mDefaultAudioObject;
 		AkGameObjectID mDefaultAudioListener;
-		CAkFilePackageLowLevelIODeferred mLowLevelIO;
 
 		std::string soundbankBasePath;
 		std::string externalSourcesSubFolder;

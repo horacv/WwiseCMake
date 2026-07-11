@@ -57,8 +57,17 @@ def copy_sdk_files(source_dir, platform):
         print(f"⚠ Warning: SDK libraries not found at {src}")
 
     # Copy samples/SoundEngine (Wwise Streaming Manager)
-    src = source_root / "samples" / "SoundEngine"
-    dst = WWISE_LIB_DIR / "samples" / "SoundEngine"
+
+    # Wwise 2026 and above
+    stream_manager_src_current = source_root / "source" / "StreamManager"
+    stream_manager_dst_current = WWISE_LIB_DIR / "source" / "StreamManager"
+    # Wwise 2025 and below
+    stream_manager_src_legacy = source_root / "samples" / "SoundEngine"
+    stream_manager_dst_legacy = WWISE_LIB_DIR / "samples" / "SoundEngine"
+
+    src = stream_manager_src_current if stream_manager_src_current.exists() else stream_manager_src_legacy
+    dst = stream_manager_dst_current if stream_manager_src_current.exists() else stream_manager_dst_legacy
+
     if src.exists():
         dst.parent.mkdir(parents=True, exist_ok=True)
         shutil.copytree(src, dst, dirs_exist_ok=True)
@@ -70,7 +79,7 @@ def copy_sdk_files(source_dir, platform):
 def main():
     if len(sys.argv) < 3:
         print(r"Usage: python install_wwise_sdk.py <sdk_path> <platform>")
-        print(r"Example: python install_wwise_sdk.py C:\Audiokinetic\Wwise_2025.1.8.9170\SDK windows")
+        print(r"Example: python install_wwise_sdk.py C:\Audiokinetic\Wwise_2026.1.1.9196\SDK windows")
         sys.exit(1)
 
     sdk_path = Path(sys.argv[1])
