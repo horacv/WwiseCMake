@@ -1,4 +1,4 @@
-# Refer to https://www.audiokinetic.com/en/public-library/2025.1.2_8976/?source=SDK&id=goingfurther.html
+# Refer to https://www.audiokinetic.com/en/public-library/2025.1.12.9287/?source=SDK&id=goingfurther.html
 
 ###
 ## 1 - Define and add the Wwise Library
@@ -14,7 +14,7 @@ add_library(wwise INTERFACE)
 # Define the path of the static and dynamic libraries for each platform and build configuration
 # Add more target platforms here with an elseif ()
 if (WIN32 AND MSVC)
-    set(PLATFORM_CONFIG "x64_vc170")
+    set(PLATFORM_CONFIG "x64_vc180")
     set(WWISE_DEBUG_DLL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/${PLATFORM_CONFIG}/Debug/bin")
     set(WWISE_DEBUG_LIB_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/${PLATFORM_CONFIG}/Debug/lib")
     set(WWISE_RELEASE_DLL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/lib/${PLATFORM_CONFIG}/Release/bin")

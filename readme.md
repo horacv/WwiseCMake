@@ -7,7 +7,7 @@ A CMake template project that demonstrates integration of Audiokinetic's Wwise a
 
 ![screenshot.png](images/screenshot.png)
 
-### Verified Wwise SDK Version: 2025.1.6.9117
+### Verified Wwise SDK Version: 2025.1.12.9287
 
 ## Overview
 
@@ -40,7 +40,7 @@ This project showcases a basic integration between Wwise and SDL, featuring:
 Open the project directory and write one of these command examples based on your platform and required configuration.
 Note that some IDEs can configure and build your project without using the command line.
 
-- cmake -B build/debug -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio 17 2022"
+- cmake -B build/debug -DCMAKE_BUILD_TYPE=Debug -G "Visual Studio 18 2026"
 - cmake -B build/debug -DCMAKE_BUILD_TYPE=Debug -G Xcode
 - cmake -B build/release -DCMAKE_BUILD_TYPE=Release -G "Unix Makefiles"
 
