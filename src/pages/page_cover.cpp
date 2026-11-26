@@ -120,7 +120,7 @@ void PageCover::MusicEventCallback(const AudioCallbackType type, AudioEventCallb
     if (type == AK_MusicSyncBeat)
     {
         const auto page = static_cast<PageCover*>(cookie);
-        const auto* musicInfo = static_cast<AkMusicSyncCallbackInfo*>(callbackInfo);
+        const auto* musicInfo = static_cast<AkSegmentCallbackInfo*>(callbackInfo);
         if (page && musicInfo)
         {
             const auto currentPositionMs = musicInfo->segmentInfo.iCurrentPosition + musicInfo->segmentInfo.iRemainingLookAheadTime;
