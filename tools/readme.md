@@ -17,12 +17,12 @@ Downloads and installs ImGui source code.
 ```bash
 python setup_imgui_sources.py <imgui_version> [--delete-installer]
 ```
-- **imgui_version**: e.g., `1.92.9b`.
+- **imgui_version**: e.g., `1.93.0`.
 - **--delete-installer**: (Optional) Deletes the downloaded archive after successful extraction.
 
 **Example:**
 ```bash
-python setup_imgui_sources.py 1.92.9b --delete-installer
+python setup_imgui_sources.py 1.93.0 --delete-installer
 ```
 
 ---
@@ -36,13 +36,13 @@ Downloads and installs both SDL and SDL_ttf in one step.
 python setup_sdl_and_ttf.py --platform <platform> --sdl-version <sdl_version> --ttf-version <ttf_version> [--delete-installer <True|False>]
 ```
 - **--platform**: `windows` (default) or `mac`.
-- **--sdl-version**: e.g., `3.4.16` (default).
+- **--sdl-version**: e.g., `3.4.20` (default).
 - **--ttf-version**: e.g., `3.2.2` (default).
 - **--delete-installer**: (Optional) `True` (default) or `False`. Deletes the downloaded archives after successful extraction.
 
 **Example:**
 ```bash
-python setup_sdl_and_ttf.py --platform windows --sdl-version 3.4.16 --ttf-version 3.2.2
+python setup_sdl_and_ttf.py --platform windows --sdl-version 3.4.20 --ttf-version 3.2.2
 ```
 
 #### `get_sdl_base.py` / `get_sdl_ttf.py`
@@ -61,7 +61,7 @@ python install_sdl_ttf.py <installer_file> [--delete-installer]
 
 **Example:**
 ```bash
-python install_sdl_base.py SDL3-devel-3.4.16-VC.zip --delete-installer
+python install_sdl_base.py SDL3-devel-3.4.20-VC.zip --delete-installer
 python install_sdl_ttf.py SDL3_ttf-devel-3.2.2-VC.zip --delete-installer
 ```
 
