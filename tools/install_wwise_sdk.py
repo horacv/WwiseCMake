@@ -17,7 +17,7 @@ PLATFORM_CONFIG = {
         'lib_subdir': 'x64_vc180',
         },
     'mac': {
-        'lib_subdir': 'Mac_Xcode2600',
+        'lib_subdir': 'Mac_Xcode2700',
     }
 }
 
